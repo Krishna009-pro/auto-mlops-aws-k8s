@@ -41,7 +41,6 @@ model_cache = {
 
 def load_model_from_storage():
     """Loads model from AWS S3 or fallback local path."""
-    global model_cache
     loaded = False
 
     # 1. Attempt download from S3
@@ -150,7 +149,6 @@ def api_retrain_model():
     Simulates automated Continuous Training (CT) and zero-downtime deployment.
     Triggered from the full-stack web UI.
     """
-    global model_cache
     try:
         from src.dataset.generate_data import generate_fraud_data
         from src.train.train import train_model
