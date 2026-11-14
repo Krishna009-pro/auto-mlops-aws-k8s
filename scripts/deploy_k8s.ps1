@@ -1,7 +1,7 @@
 # PowerShell script to deploy MLOps components to Kubernetes (EKS / K3s / Minikube)
 param (
     [string]$Namespace = "mlops",
-    [string]$DockerUser = "yourdockerhub"
+    [string]$DockerUser = "krishna250"
 )
 
 Write-Host "=========================================" -ForegroundColor Cyan

@@ -142,12 +142,12 @@ This runs all 6 stages sequentially and prints live logs for data ingestion, sch
 
 ### 1. Build and Tag Images
 ```powershell
-.\scripts\build_docker.ps1 -DockerUser yourdockerhub -Tag latest
+.\scripts\build_docker.ps1 -DockerUser krishna250 -Tag latest
 ```
 
 ### 2. Run the Serving Container Locally
 ```bash
-docker run -p 8000:8000 yourdockerhub/mlops-serving:latest
+docker run -p 8000:8000 krishna250/mlops-serving:latest
 ```
 Visit the interactive Swagger UI at: `http://localhost:8000/docs`
 
@@ -158,7 +158,7 @@ Visit the interactive Swagger UI at: `http://localhost:8000/docs`
 Deploy all components into your local or cloud Kubernetes cluster:
 
 ```powershell
-.\scripts\deploy_k8s.ps1 -Namespace mlops -DockerUser yourdockerhub
+.\scripts\deploy_k8s.ps1 -Namespace mlops -DockerUser krishna250
 ```
 
 Check running pods and services:

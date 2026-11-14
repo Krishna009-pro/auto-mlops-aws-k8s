@@ -1,6 +1,6 @@
 # PowerShell script to build and tag Docker images for MLOps pipeline
 param (
-    [string]$DockerUser = "yourdockerhub",
+    [string]$DockerUser = "krishna250",
     [string]$Tag = "latest"
 )
 

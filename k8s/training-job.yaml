@@ -18,7 +18,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: trainer
-          image: yourdockerhub/mlops-trainer:latest
+          image: krishna250/mlops-trainer:latest
           imagePullPolicy: Always
           args:
             - "--data-path"

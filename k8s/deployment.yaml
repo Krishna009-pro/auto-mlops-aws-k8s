@@ -25,8 +25,7 @@ spec:
       serviceAccountName: mlops-service-account
       containers:
         - name: inference-api
-          # Replace with your Docker Hub username
-          image: yourdockerhub/mlops-serving:latest
+          image: krishna250/mlops-serving:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
