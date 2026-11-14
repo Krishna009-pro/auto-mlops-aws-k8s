@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,230 +24,1144 @@
       --shadow: 0 12px 36px rgb(27 52 57 / 5%);
     }
 
-    * { box-sizing: border-box; }
-    body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
-    button, input { font: inherit; }
-    button { color: inherit; }
-    button:focus-visible, input:focus-visible { outline: 3px solid #8ac9b6; outline-offset: 2px; }
-    .shell { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
-
-    .topbar { position: sticky; z-index: 5; inset-block-start: 0; border-block-end: 1px solid var(--line); background: rgb(255 255 255 / 94%); backdrop-filter: blur(12px); }
-    .topbar-inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .brand-mark { inline-size: 42px; block-size: 42px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 13px; background: var(--green); color: white; }
-    .brand-mark svg { inline-size: 22px; block-size: 22px; }
-    .brand-name { margin: 0; font-size: 16px; font-weight: 750; letter-spacing: -.035em; }
-    .brand-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 11px; letter-spacing: .015em; }
-    .topbar-meta { display: flex; align-items: center; gap: 10px; }
-    .status-pill, .model-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: #53636a; font-size: 12px; font-weight: 600; white-space: nowrap; }
-    .model-pill { color: var(--green-dark); border-color: #cfe4dc; background: var(--green-soft); }
-    .status-dot { inline-size: 7px; block-size: 7px; border-radius: 50%; background: #39a17f; box-shadow: 0 0 0 3px #e2f2ec; }
-
-    main { padding-block: 38px 56px; }
-    .intro { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-block-end: 26px; }
-    .eyebrow { margin: 0 0 9px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
-    h1 { margin: 0; font-size: clamp(1.7rem, 1.2rem + 2vw, 2.375rem); line-height: 1.08; letter-spacing: -.055em; }
-    .intro-copy { max-width: 590px; margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
-    .local-tag { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid #dce5ea; border-radius: 10px; background: #f0f4f7; color: #536671; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .local-tag svg { inline-size: 15px; block-size: 15px; }
-
-    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-block-end: 22px; }
-    .metric-card { min-width: 0; padding: 18px 19px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 2px 8px rgb(27 52 57 / 2%); }
-    .metric-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .metric-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .075em; text-transform: uppercase; }
-    .metric-icon { inline-size: 30px; block-size: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--green-soft); color: var(--green); }
-    .metric-icon svg { inline-size: 16px; block-size: 16px; }
-    .metric-value { overflow: hidden; margin: 14px 0 4px; font-size: 25px; font-weight: 740; letter-spacing: -.045em; text-overflow: ellipsis; white-space: nowrap; }
-    .metric-note { margin: 0; color: var(--muted); font-size: 11px; }
-
-    .pipeline { display: flex; align-items: center; gap: 10px; overflow: auto; padding: 12px 16px; margin-block-end: 22px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfc; scrollbar-width: thin; }
-    .pipeline-label { margin-inline-end: 6px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-    .stage { display: inline-flex; align-items: center; gap: 8px; color: #495d64; font-size: 12px; font-weight: 650; white-space: nowrap; }
-    .stage-number { inline-size: 22px; block-size: 22px; display: grid; place-items: center; border-radius: 7px; background: var(--green-soft); color: var(--green-dark); font-size: 10px; }
-    .stage-arrow { color: #aab6b8; font-size: 14px; }
-
-    .workspace { display: grid; grid-template-columns: minmax(0, 1.38fr) minmax(300px, .82fr); align-items: start; gap: 20px; }
-    .stack { display: grid; gap: 20px; min-width: 0; }
-    .panel { min-width: 0; padding: 23px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow); }
-    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-block-end: 17px; border-block-end: 1px solid #edf0f0; }
-    .panel-title-wrap { display: flex; align-items: flex-start; gap: 12px; }
-    .panel-icon { inline-size: 35px; block-size: 35px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 10px; background: var(--blue-soft); color: #55748b; }
-    .panel-icon svg { inline-size: 18px; block-size: 18px; }
-    h2 { margin: 1px 0 5px; font-size: 15px; font-weight: 730; letter-spacing: -.02em; }
-    .panel-description { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
-    .endpoint { padding: 6px 8px; border-radius: 7px; background: #f2f5f5; color: #637278; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; white-space: nowrap; }
-
-    .presets { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 17px 19px; }
-    .preset { min-height: 32px; padding: 0 11px; border: 1px solid #e3e9e8; border-radius: 8px; background: #fff; color: #506168; cursor: pointer; font-size: 11px; font-weight: 620; transition: background .15s ease, border-color .15s ease, transform .15s ease; }
-    .preset:hover { transform: translateY(-1px); border-color: #b9d8cd; background: #f7fbf9; }
-    .preset[data-tone="risk"] { color: #9b534c; }
-    .preset[data-tone="watch"] { color: #8a6b31; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 16px; }
-    .field { display: grid; gap: 7px; min-width: 0; }
-    .field-label, .range-heading { color: #47585e; font-size: 11px; font-weight: 690; }
-    .input-wrap { position: relative; }
-    .input-prefix { position: absolute; inset-inline-start: 12px; inset-block-start: 50%; color: #869398; font-size: 12px; transform: translateY(-50%); pointer-events: none; }
-    .field input[type="number"] { inline-size: 100%; min-height: 42px; padding: 0 12px; border: 1px solid #dfe6e5; border-radius: 9px; background: #fff; color: var(--ink); font-size: 13px; transition: border-color .15s ease, box-shadow .15s ease; }
-    .field input.has-prefix { padding-inline-start: 27px; }
-    .field input[type="number"]:focus { border-color: #78b49f; box-shadow: 0 0 0 3px rgb(71 151 123 / 12%); outline: 0; }
-    .range-field { align-content: start; }
-    .range-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .range-value { color: var(--green-dark); font-variant-numeric: tabular-nums; font-size: 11px; font-weight: 700; }
-    input[type="range"] { inline-size: 100%; height: 24px; margin: 0; accent-color: var(--green); cursor: pointer; }
-    .range-ends { display: flex; justify-content: space-between; color: #98a3a6; font-size: 9px; }
-    .form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding-block-start: 1px; }
-    .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 43px; padding: 0 16px; border: 1px solid transparent; border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 700; transition: background .15s ease, transform .15s ease; }
-    .primary-button { flex: 1; background: var(--green); color: white; box-shadow: 0 4px 10px rgb(35 122 100 / 15%); }
-    .primary-button:hover:not(:disabled) { transform: translateY(-1px); background: var(--green-dark); }
-    .primary-button:disabled, .secondary-button:disabled { cursor: wait; opacity: .65; }
-    .button-icon { font-size: 15px; line-height: 1; }
-    .result { margin-block-start: 19px; padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: #fafcfc; }
-    .result[hidden] { display: none; }
-    .result[data-risk="high"] { border-color: #f0d5d1; background: #fff8f7; }
-    .result[data-risk="medium"] { border-color: #eee2c7; background: #fffcf6; }
-    .result[data-risk="low"] { border-color: #d4e9df; background: #f6fbf8; }
-    .result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-block-end: 15px; }
-    .result-title { margin: 0; font-size: 13px; font-weight: 750; }
-    .result-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
-    .risk-tag { padding: 6px 9px; border-radius: 999px; background: #eaf5f1; color: var(--green-dark); font-size: 9px; font-weight: 760; letter-spacing: .04em; }
-    [data-risk="high"] .risk-tag { background: #f9e7e4; color: #a34e43; }
-    [data-risk="medium"] .risk-tag { background: #f8efd9; color: #896829; }
-    .probability-row { display: flex; justify-content: space-between; gap: 10px; margin-block-end: 8px; color: #66767b; font-size: 10px; }
-    .probability-row strong { color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; }
-    .prob-track { block-size: 7px; overflow: hidden; border-radius: 999px; background: #e7eceb; }
-    .prob-bar { block-size: 100%; inline-size: 0; border-radius: inherit; background: var(--green); transition: inline-size .4s ease; }
-    [data-risk="high"] .prob-bar { background: #c56a5d; }
-    [data-risk="medium"] .prob-bar { background: #c59a45; }
-    .result-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-block-start: 10px; color: #7b898d; font-size: 10px; }
-    .xai-box { margin-block-start: 13px; padding-block-start: 11px; border-block-start: 1px dashed #dce5e2; }
-    .xai-title { display: block; font-size: 10px; font-weight: 750; color: #536368; margin-block-end: 6px; letter-spacing: .02em; }
-    .xai-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
-    .xai-item { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: #3c4f55; }
-    .xai-bullet { color: var(--green); font-size: 11px; font-weight: 700; }
-    [data-risk="high"] .xai-bullet { color: #c56a5d; }
-    [data-risk="medium"] .xai-bullet { color: #c59a45; }
-
-    .audit-panel { margin-block-start: 18px; container: audit / inline-size; }
-    .audit-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
-    .clear-audit-button { min-height: 32px; padding: 4px 9px; border: 1px solid var(--line); border-radius: 6px; background: #f1f5f4; color: #55676c; cursor: pointer; font-size: 10px; font-weight: 650; }
-    .clear-audit-button:hover { background: #e8efed; }
-    .table-responsive { width: 100%; overflow-x: auto; margin-block-start: 12px; container-type: inline-size; }
-    .sr-only { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-    .audit-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
-    .audit-table th { padding: 9px 12px; border-block-end: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
-    .audit-table td { padding: 9px 12px; border-block-end: 1px solid #edf1f1; color: var(--ink); }
-    .audit-table tr:hover td { background: #fafcfc; }
-    .audit-table .empty-row td { text-align: center; color: var(--muted); padding: 18px 12px; font-style: italic; }
-    .table-tag { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 9px; font-weight: 750; }
-    .table-tag.risk-high { background: #f9e7e4; color: #a34e43; }
-    .table-tag.risk-medium { background: #f8efd9; color: #896829; }
-    .table-tag.risk-low { background: #eaf5f1; color: var(--green-dark); }
-    @container audit (width < 640px) {
-      .audit-panel .panel-head { flex-direction: column; align-items: stretch; }
-      .audit-actions { justify-content: space-between; }
-      .table-responsive { overflow: visible; }
-      .audit-table, .audit-table thead, .audit-table tbody, .audit-table tr, .audit-table th, .audit-table td { display: block; }
-      .audit-table { border-collapse: separate; }
-      .audit-table thead { display: none; }
-      .audit-table tbody { display: grid; gap: 10px; }
-      .audit-table tbody tr:not(.empty-row) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-      .audit-table tbody tr:not(.empty-row):hover td { background: transparent; }
-      .audit-table td { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: start; gap: 7px; min-width: 0; padding: 2px 0; border: 0; overflow-wrap: anywhere; }
-      .audit-table td::before { content: attr(data-label); color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .035em; text-transform: uppercase; }
-      .audit-table td:nth-child(5) { grid-column: 1 / -1; }
-      .audit-table .empty-row td { display: block; padding: 15px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; text-align: center; }
-      .audit-table .empty-row td::before { content: none; }
+    * {
+      box-sizing: border-box;
     }
-    @container audit (width < 390px) {
-      .audit-table tbody tr:not(.empty-row) { grid-template-columns: minmax(0, 1fr); }
-      .audit-table td:nth-child(5) { grid-column: auto; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--canvas);
+      color: var(--ink);
     }
-    .result-message { min-height: 16px; margin: 11px 0 0; color: #a34e43; font-size: 11px; }
 
-    .retrain-panel { background: linear-gradient(145deg, #fff 0%, #f8fbf9 100%); }
-    .retrain-copy { margin: 17px 0; color: #66767b; font-size: 12px; line-height: 1.7; }
-    .retrain-copy code { color: var(--green-dark); font-size: 11px; }
-    .secondary-button { width: 100%; border-color: #cfe2d9; background: #edf6f2; color: var(--green-dark); }
-    .secondary-button:hover:not(:disabled) { background: #e2f0e9; }
-    .terminal { margin-block-start: 14px; padding: 13px; border: 1px solid #e7ece9; border-radius: 10px; background: #f8faf9; }
-    .terminal[hidden] { display: none; }
-    .terminal-head { display: flex; justify-content: space-between; gap: 8px; padding-block-end: 9px; border-block-end: 1px solid #e8edeb; color: #7d898d; font-size: 10px; }
-    .terminal-status { color: #9b762f; font-weight: 750; }
-    .log-output { display: grid; gap: 7px; max-block-size: 180px; overflow: auto; padding-block-start: 10px; color: #56696e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; line-height: 1.5; }
-    .log-line { display: flex; gap: 7px; }
-    .log-mark { color: var(--green); }
+    button,
+    input {
+      font: inherit;
+    }
 
-    .infra-list { display: grid; gap: 0; margin-block-start: 6px; }
-    .infra-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 49px; border-block-end: 1px solid #edf0f0; }
-    .infra-row:last-child { border: 0; }
-    .infra-name { display: flex; align-items: center; gap: 9px; min-width: 0; color: #526269; font-size: 11px; font-weight: 610; }
-    .infra-symbol { inline-size: 25px; block-size: 25px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 7px; background: #f1f5f4; color: #638078; font-size: 11px; font-weight: 750; }
-    .infra-state { color: #7d898d; font-size: 10px; white-space: nowrap; }
-    .infra-note { margin: 12px 0 0; padding: 10px 11px; border-radius: 8px; background: #f4f7f7; color: #758388; font-size: 10px; line-height: 1.55; }
-    footer { display: flex; justify-content: space-between; gap: 16px; padding-block-start: 21px; margin-block-start: 22px; border-block-start: 1px solid var(--line); color: #899599; font-size: 10px; }
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid #8ac9b6;
+      outline-offset: 2px;
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 5;
+      inset-block-start: 0;
+      border-block-end: 1px solid var(--line);
+      background: rgb(255 255 255 / 94%);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      inline-size: 42px;
+      block-size: 42px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 13px;
+      background: var(--green);
+      color: white;
+    }
+
+    .brand-mark svg {
+      inline-size: 22px;
+      block-size: 22px;
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 750;
+      letter-spacing: -.035em;
+    }
+
+    .brand-subtitle {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .015em;
+    }
+
+    .topbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-pill,
+    .model-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      color: #53636a;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .model-pill {
+      color: var(--green-dark);
+      border-color: #cfe4dc;
+      background: var(--green-soft);
+    }
+
+    .status-dot {
+      inline-size: 7px;
+      block-size: 7px;
+      border-radius: 50%;
+      background: #39a17f;
+      box-shadow: 0 0 0 3px #e2f2ec;
+    }
+
+    main {
+      padding-block: 38px 56px;
+    }
+
+    .intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-block-end: 26px;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 1.2rem + 2vw, 2.375rem);
+      line-height: 1.08;
+      letter-spacing: -.055em;
+    }
+
+    .intro-copy {
+      max-width: 590px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .local-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid #dce5ea;
+      border-radius: 10px;
+      background: #f0f4f7;
+      color: #536671;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .local-tag svg {
+      inline-size: 15px;
+      block-size: 15px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-block-end: 22px;
+    }
+
+    .metric-card {
+      min-width: 0;
+      padding: 18px 19px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      box-shadow: 0 2px 8px rgb(27 52 57 / 2%);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+    }
+
+    .metric-icon {
+      inline-size: 30px;
+      block-size: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .metric-icon svg {
+      inline-size: 16px;
+      block-size: 16px;
+    }
+
+    .metric-value {
+      overflow: hidden;
+      margin: 14px 0 4px;
+      font-size: 25px;
+      font-weight: 740;
+      letter-spacing: -.045em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .metric-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: auto;
+      padding: 12px 16px;
+      margin-block-end: 22px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fbfcfc;
+      scrollbar-width: thin;
+    }
+
+    .pipeline-label {
+      margin-inline-end: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .stage {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #495d64;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .stage-number {
+      inline-size: 22px;
+      block-size: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      font-size: 10px;
+    }
+
+    .stage-arrow {
+      color: #aab6b8;
+      font-size: 14px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.38fr) minmax(300px, .82fr);
+      align-items: start;
+      gap: 20px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 23px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding-block-end: 17px;
+      border-block-end: 1px solid #edf0f0;
+    }
+
+    .panel-title-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .panel-icon {
+      inline-size: 35px;
+      block-size: 35px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      background: var(--blue-soft);
+      color: #55748b;
+    }
+
+    .panel-icon svg {
+      inline-size: 18px;
+      block-size: 18px;
+    }
+
+    h2 {
+      margin: 1px 0 5px;
+      font-size: 15px;
+      font-weight: 730;
+      letter-spacing: -.02em;
+    }
+
+    .panel-description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .endpoint {
+      padding: 6px 8px;
+      border-radius: 7px;
+      background: #f2f5f5;
+      color: #637278;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-block: 17px 19px;
+    }
+
+    .preset {
+      min-height: 32px;
+      padding: 0 11px;
+      border: 1px solid #e3e9e8;
+      border-radius: 8px;
+      background: #fff;
+      color: #506168;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 620;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+    .preset:hover {
+      transform: translateY(-1px);
+      border-color: #b9d8cd;
+      background: #f7fbf9;
+    }
+
+    .preset[data-tone="risk"] {
+      color: #9b534c;
+    }
+
+    .preset[data-tone="watch"] {
+      color: #8a6b31;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 17px 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .field-label,
+    .range-heading {
+      color: #47585e;
+      font-size: 11px;
+      font-weight: 690;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-prefix {
+      position: absolute;
+      inset-inline-start: 12px;
+      inset-block-start: 50%;
+      color: #869398;
+      font-size: 12px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .field input[type="number"] {
+      inline-size: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid #dfe6e5;
+      border-radius: 9px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .field input.has-prefix {
+      padding-inline-start: 27px;
+    }
+
+    .field input[type="number"]:focus {
+      border-color: #78b49f;
+      box-shadow: 0 0 0 3px rgb(71 151 123 / 12%);
+      outline: 0;
+    }
+
+    .range-field {
+      align-content: start;
+    }
+
+    .range-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .range-value {
+      color: var(--green-dark);
+      font-variant-numeric: tabular-nums;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      inline-size: 100%;
+      height: 24px;
+      margin: 0;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .range-ends {
+      display: flex;
+      justify-content: space-between;
+      color: #98a3a6;
+      font-size: 9px;
+    }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-block-start: 1px;
+    }
+
+    .primary-button,
+    .secondary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 43px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .primary-button {
+      flex: 1;
+      background: var(--green);
+      color: white;
+      box-shadow: 0 4px 10px rgb(35 122 100 / 15%);
+    }
+
+    .primary-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: var(--green-dark);
+    }
+
+    .primary-button:disabled,
+    .secondary-button:disabled {
+      cursor: wait;
+      opacity: .65;
+    }
+
+    .button-icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .result {
+      margin-block-start: 19px;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fafcfc;
+    }
+
+    .result[hidden] {
+      display: none;
+    }
+
+    .result[data-risk="high"] {
+      border-color: #f0d5d1;
+      background: #fff8f7;
+    }
+
+    .result[data-risk="medium"] {
+      border-color: #eee2c7;
+      background: #fffcf6;
+    }
+
+    .result[data-risk="low"] {
+      border-color: #d4e9df;
+      background: #f6fbf8;
+    }
+
+    .result-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-block-end: 15px;
+    }
+
+    .result-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .result-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .risk-tag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #eaf5f1;
+      color: var(--green-dark);
+      font-size: 9px;
+      font-weight: 760;
+      letter-spacing: .04em;
+    }
+
+    [data-risk="high"] .risk-tag {
+      background: #f9e7e4;
+      color: #a34e43;
+    }
+
+    [data-risk="medium"] .risk-tag {
+      background: #f8efd9;
+      color: #896829;
+    }
+
+    .probability-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-block-end: 8px;
+      color: #66767b;
+      font-size: 10px;
+    }
+
+    .probability-row strong {
+      color: var(--ink);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .prob-track {
+      block-size: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e7eceb;
+    }
+
+    .prob-bar {
+      block-size: 100%;
+      inline-size: 0;
+      border-radius: inherit;
+      background: var(--green);
+      transition: inline-size .4s ease;
+    }
+
+    [data-risk="high"] .prob-bar {
+      background: #c56a5d;
+    }
+
+    [data-risk="medium"] .prob-bar {
+      background: #c59a45;
+    }
+
+    .result-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      margin-block-start: 10px;
+      color: #7b898d;
+      font-size: 10px;
+    }
+
+    .xai-box {
+      margin-block-start: 13px;
+      padding-block-start: 11px;
+      border-block-start: 1px dashed #dce5e2;
+    }
+
+    .xai-title {
+      display: block;
+      font-size: 10px;
+      font-weight: 750;
+      color: #536368;
+      margin-block-end: 6px;
+      letter-spacing: .02em;
+    }
+
+    .xai-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .xai-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: #3c4f55;
+    }
+
+    .xai-bullet {
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    [data-risk="high"] .xai-bullet {
+      color: #c56a5d;
+    }
+
+    [data-risk="medium"] .xai-bullet {
+      color: #c59a45;
+    }
+
+    .audit-panel {
+      margin-block-start: 18px;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-block-start: 12px;
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .audit-table th {
+      padding: 9px 12px;
+      border-block-end: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .audit-table td {
+      padding: 9px 12px;
+      border-block-end: 1px solid #edf1f1;
+      color: var(--ink);
+    }
+
+    .audit-table tr:hover td {
+      background: #fafcfc;
+    }
+
+    .audit-table .empty-row td {
+      text-align: center;
+      color: var(--muted);
+      padding: 18px 12px;
+      font-style: italic;
+    }
+
+    .table-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 750;
+    }
+
+    .table-tag.risk-high {
+      background: #f9e7e4;
+      color: #a34e43;
+    }
+
+    .table-tag.risk-medium {
+      background: #f8efd9;
+      color: #896829;
+    }
+
+    .table-tag.risk-low {
+      background: #eaf5f1;
+      color: var(--green-dark);
+    }
+
+    .result-message {
+      min-height: 16px;
+      margin: 11px 0 0;
+      color: #a34e43;
+      font-size: 11px;
+    }
+
+    .retrain-panel {
+      background: linear-gradient(145deg, #fff 0%, #f8fbf9 100%);
+    }
+
+    .retrain-copy {
+      margin: 17px 0;
+      color: #66767b;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .retrain-copy code {
+      color: var(--green-dark);
+      font-size: 11px;
+    }
+
+    .secondary-button {
+      width: 100%;
+      border-color: #cfe2d9;
+      background: #edf6f2;
+      color: var(--green-dark);
+    }
+
+    .secondary-button:hover:not(:disabled) {
+      background: #e2f0e9;
+    }
+
+    .terminal {
+      margin-block-start: 14px;
+      padding: 13px;
+      border: 1px solid #e7ece9;
+      border-radius: 10px;
+      background: #f8faf9;
+    }
+
+    .terminal[hidden] {
+      display: none;
+    }
+
+    .terminal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding-block-end: 9px;
+      border-block-end: 1px solid #e8edeb;
+      color: #7d898d;
+      font-size: 10px;
+    }
+
+    .terminal-status {
+      color: #9b762f;
+      font-weight: 750;
+    }
+
+    .log-output {
+      display: grid;
+      gap: 7px;
+      max-block-size: 180px;
+      overflow: auto;
+      padding-block-start: 10px;
+      color: #56696e;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 7px;
+    }
+
+    .log-mark {
+      color: var(--green);
+    }
+
+    .infra-list {
+      display: grid;
+      gap: 0;
+      margin-block-start: 6px;
+    }
+
+    .infra-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 49px;
+      border-block-end: 1px solid #edf0f0;
+    }
+
+    .infra-row:last-child {
+      border: 0;
+    }
+
+    .infra-name {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      color: #526269;
+      font-size: 11px;
+      font-weight: 610;
+    }
+
+    .infra-symbol {
+      inline-size: 25px;
+      block-size: 25px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 7px;
+      background: #f1f5f4;
+      color: #638078;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .infra-state {
+      color: #7d898d;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .infra-note {
+      margin: 12px 0 0;
+      padding: 10px 11px;
+      border-radius: 8px;
+      background: #f4f7f7;
+      color: #758388;
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-block-start: 21px;
+      margin-block-start: 22px;
+      border-block-start: 1px solid var(--line);
+      color: #899599;
+      font-size: 10px;
+    }
 
     @media (max-width: 900px) {
-      .shell { width: min(100% - 36px, 760px); }
-      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .workspace { grid-template-columns: minmax(0, 1fr); }
-      .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+      .shell {
+        width: min(100% - 36px, 760px);
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .stack {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+      }
     }
+
     @media (max-width: 600px) {
-      .shell { width: calc(100% - 28px); }
-      .topbar-inner { min-height: 66px; }
-      .brand-mark { inline-size: 37px; block-size: 37px; }
-      .brand-subtitle { font-size: 10px; }
-      .status-pill { display: none; }
-      .model-pill { min-height: 31px; padding-inline: 9px; font-size: 10px; }
-      main { padding-block: 27px 38px; }
-      .intro { align-items: flex-start; flex-direction: column; gap: 14px; }
-      .intro-copy { font-size: 13px; }
-      .metrics { gap: 9px; }
-      .metric-card { padding: 14px; }
-      .metric-value { font-size: 21px; }
-      .metric-label { font-size: 9px; }
-      .metric-note { font-size: 10px; }
-      .pipeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 11px; }
-      .pipeline-label { grid-column: 1 / -1; margin: 0 0 2px; }
-      .stage { min-height: 36px; padding-inline: 8px; border: 1px solid #edf0f0; border-radius: 8px; background: #fff; font-size: 10px; }
-      .stage-number { inline-size: 19px; block-size: 19px; }
-      .stage-arrow { display: none; }
-      .panel { padding: 17px; }
-      .panel-head { gap: 8px; }
-      .endpoint { font-size: 9px; }
-      .stack { grid-template-columns: minmax(0, 1fr); }
-      .preset { min-height: 40px; padding-inline: 12px; }
-      .field input[type="number"] { min-height: 46px; font-size: 16px; }
-      .primary-button, .secondary-button { min-height: 47px; }
-      input[type="range"] { min-height: 32px; }
-      footer { flex-direction: column; gap: 7px; }
+      .shell {
+        width: calc(100% - 28px);
+      }
+
+      .topbar-inner {
+        min-height: 66px;
+      }
+
+      .brand-mark {
+        inline-size: 37px;
+        block-size: 37px;
+      }
+
+      .brand-subtitle {
+        font-size: 10px;
+      }
+
+      .status-pill {
+        display: none;
+      }
+
+      .model-pill {
+        min-height: 31px;
+        padding-inline: 9px;
+        font-size: 10px;
+      }
+
+      main {
+        padding-block: 27px 38px;
+      }
+
+      .intro {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .intro-copy {
+        font-size: 13px;
+      }
+
+      .metrics {
+        gap: 9px;
+      }
+
+      .metric-card {
+        padding: 14px;
+      }
+
+      .metric-value {
+        font-size: 21px;
+      }
+
+      .metric-label {
+        font-size: 9px;
+      }
+
+      .metric-note {
+        font-size: 10px;
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        overflow: visible;
+        padding: 11px;
+      }
+
+      .pipeline-label {
+        grid-column: 1 / -1;
+        margin: 0 0 2px;
+      }
+
+      .stage {
+        min-height: 36px;
+        padding-inline: 8px;
+        border: 1px solid #edf0f0;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 10px;
+      }
+
+      .stage-number {
+        inline-size: 19px;
+        block-size: 19px;
+      }
+
+      .stage-arrow {
+        display: none;
+      }
+
+      .panel {
+        padding: 17px;
+      }
+
+      .panel-head {
+        gap: 8px;
+      }
+
+      .endpoint {
+        font-size: 9px;
+      }
+
+      .stack {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .preset {
+        min-height: 40px;
+        padding-inline: 12px;
+      }
+
+      .field input[type="number"] {
+        min-height: 46px;
+        font-size: 16px;
+      }
+
+      .primary-button,
+      .secondary-button {
+        min-height: 47px;
+      }
+
+      input[type="range"] {
+        min-height: 32px;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 7px;
+      }
     }
+
     @media (max-width: 600px) {
-      .form-grid { grid-template-columns: minmax(0, 1fr); }
-      .form-actions { grid-column: auto; }
+      .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .form-actions {
+        grid-column: auto;
+      }
     }
+
     @media (max-width: 360px) {
-      .metric-card { padding: 12px; }
-      .metric-icon { inline-size: 26px; block-size: 26px; }
-      .panel-title-wrap { gap: 9px; }
-      .panel-icon { inline-size: 31px; block-size: 31px; }
-      .endpoint { padding: 5px 6px; }
+      .metric-card {
+        padding: 12px;
+      }
+
+      .metric-icon {
+        inline-size: 26px;
+        block-size: 26px;
+      }
+
+      .panel-title-wrap {
+        gap: 9px;
+      }
+
+      .panel-icon {
+        inline-size: 31px;
+        block-size: 31px;
+      }
+
+      .endpoint {
+        padding: 5px 6px;
+      }
     }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
     }
+
     @media (forced-colors: active) {
-      .status-dot, .metric-icon, .panel-icon, .stage-number { border: 1px solid currentColor; }
-      button, input { forced-color-adjust: auto; }
+
+      .status-dot,
+      .metric-icon,
+      .panel-icon,
+      .stage-number {
+        border: 1px solid currentColor;
+      }
+
+      button,
+      input {
+        forced-color-adjust: auto;
+      }
     }
   </style>
 </head>
+
 <body>
   <header class="topbar">
     <div class="shell topbar-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
         </div>
         <div>
           <p class="brand-name">SentinelOps</p>
@@ -265,38 +1180,67 @@
       <div>
         <p class="eyebrow">Model operations</p>
         <h1 id="page-title">Good morning, operator.</h1>
-        <p class="intro-copy">Review model performance, score a transaction, or run a local retraining cycle from one place.</p>
+        <p class="intro-copy">Review model performance, score a transaction, or run a local retraining cycle from one
+          place.</p>
       </div>
       <span id="env-badge" class="local-tag">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="12" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="5" width="16" height="12" rx="2" />
+          <path d="M8 21h8m-4-4v4" />
+        </svg>
         <span id="env-text">Detecting environment…</span>
       </span>
     </section>
 
     <section class="metrics" aria-label="Current model summary">
       <article class="metric-card">
-        <div class="metric-top"><span class="metric-label">Model version</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z"/></svg></span></div>
-        <p id="metric-version" class="metric-value">—</p><p class="metric-note">Loaded for inference</p>
+        <div class="metric-top"><span class="metric-label">Model version</span><span class="metric-icon"
+            aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" />
+            </svg></span></div>
+        <p id="metric-version" class="metric-value">—</p>
+        <p class="metric-note">Loaded for inference</p>
       </article>
       <article class="metric-card">
-        <div class="metric-top"><span class="metric-label">Accuracy</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></span></div>
-        <p id="metric-accuracy" class="metric-value">—</p><p class="metric-note">Evaluation holdout</p>
+        <div class="metric-top"><span class="metric-label">Accuracy</span><span class="metric-icon"
+            aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="m8 12 2.5 2.5L16 9" />
+            </svg></span></div>
+        <p id="metric-accuracy" class="metric-value">—</p>
+        <p class="metric-note">Evaluation holdout</p>
       </article>
       <article class="metric-card">
-        <div class="metric-top"><span class="metric-label">F1 score</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V9m5 9V5m6 13v-7m5 7V3"/></svg></span></div>
-        <p id="metric-f1" class="metric-value">—</p><p class="metric-note">Precision and recall balance</p>
+        <div class="metric-top"><span class="metric-label">F1 score</span><span class="metric-icon"
+            aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 18V9m5 9V5m6 13v-7m5 7V3" />
+            </svg></span></div>
+        <p id="metric-f1" class="metric-value">—</p>
+        <p class="metric-note">Precision and recall balance</p>
       </article>
       <article class="metric-card">
-        <div class="metric-top"><span class="metric-label">ROC-AUC</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16M5 16l4-5 3 2 6-8"/></svg></span></div>
-        <p id="metric-auc" class="metric-value">—</p><p class="metric-note">Ranking performance</p>
+        <div class="metric-top"><span class="metric-label">ROC-AUC</span><span class="metric-icon"
+            aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 18h16M5 16l4-5 3 2 6-8" />
+            </svg></span></div>
+        <p id="metric-auc" class="metric-value">—</p>
+        <p class="metric-note">Ranking performance</p>
       </article>
     </section>
 
     <div class="pipeline" aria-label="Pipeline stages">
       <span class="pipeline-label">Lifecycle</span>
-      <span class="stage"><span class="stage-number">01</span>Data</span><span class="stage-arrow" aria-hidden="true">→</span>
-      <span class="stage"><span class="stage-number">02</span>Train</span><span class="stage-arrow" aria-hidden="true">→</span>
-      <span class="stage"><span class="stage-number">03</span>Evaluate</span><span class="stage-arrow" aria-hidden="true">→</span>
+      <span class="stage"><span class="stage-number">01</span>Data</span><span class="stage-arrow"
+        aria-hidden="true">→</span>
+      <span class="stage"><span class="stage-number">02</span>Train</span><span class="stage-arrow"
+        aria-hidden="true">→</span>
+      <span class="stage"><span class="stage-number">03</span>Evaluate</span><span class="stage-arrow"
+        aria-hidden="true">→</span>
       <span class="stage"><span class="stage-number">04</span>Serve</span>
     </div>
 
@@ -304,32 +1248,64 @@
       <section class="panel" aria-labelledby="inference-title">
         <div class="panel-head">
           <div class="panel-title-wrap">
-            <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18m-14 5h4"/></svg></span>
-            <div><h2 id="inference-title">Transaction scoring</h2><p class="panel-description">Enter transaction signals to get a fraud risk estimate.</p></div>
+            <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 10h18m-14 5h4" />
+              </svg></span>
+            <div>
+              <h2 id="inference-title">Transaction scoring</h2>
+              <p class="panel-description">Enter transaction signals to get a fraud risk estimate.</p>
+            </div>
           </div>
           <span class="endpoint">POST /predict</span>
         </div>
 
         <div class="presets" aria-label="Example transactions">
           <button class="preset" type="button" onclick="applyPreset('normal')">Everyday purchase</button>
-          <button class="preset" data-tone="risk" type="button" onclick="applyPreset('suspicious')">Unusual transfer</button>
+          <button class="preset" data-tone="risk" type="button" onclick="applyPreset('suspicious')">Unusual
+            transfer</button>
           <button class="preset" data-tone="watch" type="button" onclick="applyPreset('medium')">High frequency</button>
         </div>
 
         <form id="fraud-form" class="form-grid">
-          <label class="field" for="tx_amount"><span class="field-label">Transaction amount</span><span class="input-wrap"><span class="input-prefix" aria-hidden="true">$</span><input class="has-prefix" type="number" step="0.01" min="0" id="tx_amount" required value="35.50"></span></label>
-          <label class="field" for="tx_freq"><span class="field-label">Daily frequency</span><input type="number" min="0" id="tx_freq" required value="2"></label>
-          <div class="field range-field"><div class="range-top"><label class="range-heading" for="tx_location">Location risk</label><output id="val_loc" class="range-value" for="tx_location">0.12</output></div><input type="range" min="0" max="1" step="0.01" id="tx_location" value="0.12"><div class="range-ends"><span>Low</span><span>High</span></div></div>
-          <div class="field range-field"><div class="range-top"><label class="range-heading" for="tx_device">Device trust</label><output id="val_dev" class="range-value" for="tx_device">0.95</output></div><input type="range" min="0" max="1" step="0.01" id="tx_device" value="0.95"><div class="range-ends"><span>Untrusted</span><span>Trusted</span></div></div>
-          <label class="field" for="tx_hour"><span class="field-label">Hour of day</span><input type="number" min="0" max="23" id="tx_hour" required value="14"></label>
-          <label class="field" for="tx_failed"><span class="field-label">Failed login attempts</span><input type="number" min="0" max="10" id="tx_failed" required value="0"></label>
-          <div class="form-actions"><button type="submit" id="btn-submit" class="primary-button"><span class="button-icon" aria-hidden="true">↗</span><span>Score transaction</span></button></div>
+          <label class="field" for="tx_amount"><span class="field-label">Transaction amount</span><span
+              class="input-wrap"><span class="input-prefix" aria-hidden="true">$</span><input class="has-prefix"
+                type="number" step="0.01" min="0" id="tx_amount" required value="35.50"></span></label>
+          <label class="field" for="tx_freq"><span class="field-label">Daily frequency</span><input type="number"
+              min="0" id="tx_freq" required value="2"></label>
+          <div class="field range-field">
+            <div class="range-top"><label class="range-heading" for="tx_location">Location risk</label><output
+                id="val_loc" class="range-value" for="tx_location">0.12</output></div><input type="range" min="0"
+              max="1" step="0.01" id="tx_location" value="0.12">
+            <div class="range-ends"><span>Low</span><span>High</span></div>
+          </div>
+          <div class="field range-field">
+            <div class="range-top"><label class="range-heading" for="tx_device">Device trust</label><output id="val_dev"
+                class="range-value" for="tx_device">0.95</output></div><input type="range" min="0" max="1" step="0.01"
+              id="tx_device" value="0.95">
+            <div class="range-ends"><span>Untrusted</span><span>Trusted</span></div>
+          </div>
+          <label class="field" for="tx_hour"><span class="field-label">Hour of day</span><input type="number" min="0"
+              max="23" id="tx_hour" required value="14"></label>
+          <label class="field" for="tx_failed"><span class="field-label">Failed login attempts</span><input
+              type="number" min="0" max="10" id="tx_failed" required value="0"></label>
+          <div class="form-actions"><button type="submit" id="btn-submit" class="primary-button"><span
+                class="button-icon" aria-hidden="true">↗</span><span>Score transaction</span></button></div>
         </form>
 
         <section id="result-box" class="result" data-risk="low" aria-live="polite" hidden>
-          <div class="result-head"><div><p id="res-badge-text" class="result-title">Prediction result</p><p class="result-subtitle">Model <span id="res-version">—</span></p></div><span id="res-action" class="risk-tag">—</span></div>
+          <div class="result-head">
+            <div>
+              <p id="res-badge-text" class="result-title">Prediction result</p>
+              <p class="result-subtitle">Model <span id="res-version">—</span></p>
+            </div><span id="res-action" class="risk-tag">—</span>
+          </div>
           <div class="probability-row"><span>Fraud probability</span><strong id="res-prob">—</strong></div>
-          <div class="prob-track" role="meter" aria-label="Fraud probability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="res-bar" class="prob-bar"></div></div>
+          <div class="prob-track" role="meter" aria-label="Fraud probability" aria-valuemin="0" aria-valuemax="100"
+            aria-valuenow="0">
+            <div id="res-bar" class="prob-bar"></div>
+          </div>
           <div class="result-footer"><span>0% · Low risk</span><span>100% · High risk</span></div>
           <div class="xai-box">
             <span class="xai-title">Explainable AI · Decision Risk Drivers:</span>
@@ -343,14 +1319,24 @@
         <section class="panel retrain-panel" aria-labelledby="retrain-title">
           <div class="panel-head">
             <div class="panel-title-wrap">
-              <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3"/></svg></span>
-              <div><h2 id="retrain-title">Retraining demo</h2><p class="panel-description">Generate drifted data and refresh the local model.</p></div>
+              <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 7v5h-5M4 17v-5h5" />
+                  <path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3" />
+                </svg></span>
+              <div>
+                <h2 id="retrain-title">Retraining demo</h2>
+                <p class="panel-description">Generate drifted data and refresh the local model.</p>
+              </div>
             </div>
           </div>
-          <p class="retrain-copy">Run the training flow with a synthetic <code>transactions_v2.csv</code> sample, then reload the latest model in this app.</p>
-          <button onclick="triggerRetrain()" id="btn-retrain" class="secondary-button" type="button"><span class="button-icon" aria-hidden="true">↻</span><span>Run retraining demo</span></button>
+          <p class="retrain-copy">Run the training flow with a synthetic <code>transactions_v2.csv</code> sample, then
+            reload the latest model in this app.</p>
+          <button onclick="triggerRetrain()" id="btn-retrain" class="secondary-button" type="button"><span
+              class="button-icon" aria-hidden="true">↻</span><span>Run retraining demo</span></button>
           <div id="retrain-console" class="terminal" hidden>
-            <div class="terminal-head"><span>Run activity</span><span id="retrain-status" class="terminal-status">Starting</span></div>
+            <div class="terminal-head"><span>Run activity</span><span id="retrain-status"
+                class="terminal-status">Starting</span></div>
             <div id="log-output" class="log-output" role="log" aria-live="polite"></div>
           </div>
         </section>
@@ -358,18 +1344,32 @@
         <section class="panel" aria-labelledby="environment-title">
           <div class="panel-head">
             <div class="panel-title-wrap">
-              <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01M12 7h5m-5 10h5"/></svg></span>
-              <div><h2 id="environment-title">Cloud Infrastructure</h2><p class="panel-description">Live services connected in this MLOps architecture.</p></div>
+              <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="6" rx="1.5" />
+                  <rect x="4" y="14" width="16" height="6" rx="1.5" />
+                  <path d="M8 7h.01M8 17h.01M12 7h5m-5 10h5" />
+                </svg></span>
+              <div>
+                <h2 id="environment-title">Cloud Infrastructure</h2>
+                <p class="panel-description">Live services connected in this MLOps architecture.</p>
+              </div>
             </div>
           </div>
           <div class="infra-list">
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">API</span>FastAPI microservice</span><span id="api-state" class="infra-state">Online</span></div>
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">ML</span>Random Forest model</span><span id="model-state" class="infra-state">Loaded</span></div>
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">S3</span>Amazon S3 bucket</span><span id="s3-state" class="infra-state">icem-mlops-krishna250</span></div>
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">K8S</span>Kubernetes (K3s)</span><span id="k8s-state" class="infra-state">NodePort 30080</span></div>
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">SNS</span>Lambda & SNS alerts</span><span id="sns-state" class="infra-state">Active</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">API</span>FastAPI
+                microservice</span><span id="api-state" class="infra-state">Online</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">ML</span>Random Forest
+                model</span><span id="model-state" class="infra-state">Loaded</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">S3</span>Amazon S3
+                bucket</span><span id="s3-state" class="infra-state">icem-mlops-krishna250</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">K8S</span>Kubernetes
+                (K3s)</span><span id="k8s-state" class="infra-state">NodePort 30080</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">SNS</span>Lambda & SNS
+                alerts</span><span id="sns-state" class="infra-state">Active</span></div>
           </div>
-          <p id="infra-note" class="infra-note">Integrated with AWS Cloud (ap-south-1 Mumbai) featuring Amazon S3 storage, Lambda event triggers, and K3s container orchestration.</p>
+          <p id="infra-note" class="infra-note">Integrated with AWS Cloud (ap-south-1 Mumbai) featuring Amazon S3
+            storage, Lambda event triggers, and K3s container orchestration.</p>
         </section>
       </div>
     </div>
@@ -377,34 +1377,47 @@
     <section class="panel audit-panel" aria-labelledby="audit-title">
       <div class="panel-head">
         <div class="panel-title-wrap">
-          <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-          <div><h2 id="audit-title">Live Transaction Stream & Audit Log</h2><p class="panel-description">Real-time inference events and model governance decisions.</p></div>
+          <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg></span>
+          <div>
+            <h2 id="audit-title">Live Transaction Stream & Audit Log</h2>
+            <p class="panel-description">Real-time inference events and model governance decisions.</p>
+          </div>
         </div>
-        <div class="audit-actions">
+        <div style="display: flex; align-items: center; gap: 8px;">
           <span class="endpoint">Buffer: Persistent Stream</span>
-          <button type="button" class="clear-audit-button" onclick="clearAuditLog()">Clear log</button>
+          <button type="button" onclick="clearAuditLog()"
+            style="background: #f1f5f4; border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font-size: 10px; font-weight: 600; color: #55676c; cursor: pointer;">Clear
+            log</button>
         </div>
       </div>
-      <div class="table-responsive" tabindex="0" role="region" aria-labelledby="audit-title">
+      <div class="table-responsive">
         <table class="audit-table">
-          <caption class="sr-only">Recent transaction inference and risk decisions</caption>
           <thead>
             <tr>
-              <th scope="col">Timestamp</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Risk Tier</th>
-              <th scope="col">Fraud Probability</th>
-              <th scope="col">Primary Risk Factor</th>
-              <th scope="col">Recommended Action</th>
+              <th>Timestamp</th>
+              <th>Amount</th>
+              <th>Risk Tier</th>
+              <th>Fraud Probability</th>
+              <th>Primary Risk Factor</th>
+              <th>Recommended Action</th>
             </tr>
           </thead>
           <tbody id="audit-log-body">
-            <tr class="empty-row"><td colspan="6">No transactions scored yet. Click "Score transaction" or a preset above.</td></tr>
+            <tr class="empty-row">
+              <td colspan="6">No transactions scored yet. Click "Score transaction" or a preset above.</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </section>
-    <footer><span>SentinelOps · Fraud model workspace</span><span>Model predictions are generated by the active local model.</span></footer>
+    <footer><span>SentinelOps · Fraud model workspace</span><span>Model predictions are generated by the active local
+        model.</span></footer>
   </main>
 
   <script>
@@ -497,12 +1510,12 @@
         const tr = document.createElement('tr');
         const tagClass = entry.risk === 'HIGH' ? 'risk-high' : entry.risk === 'MEDIUM' ? 'risk-medium' : 'risk-low';
         tr.innerHTML = `
-          <td data-label="Timestamp"><strong>${entry.timestamp}</strong></td>
-          <td data-label="Amount">$${Number(entry.amount).toFixed(2)}</td>
-          <td data-label="Risk tier"><span class="table-tag ${tagClass}">${entry.risk}</span></td>
-          <td data-label="Fraud probability">${(entry.prob * 100).toFixed(1)}%</td>
-          <td data-label="Primary risk factor" style="color: #55666c;">${entry.factor}</td>
-          <td data-label="Recommended action"><strong>${entry.action.replaceAll('_', ' ')}</strong></td>
+          <td><strong>${entry.timestamp}</strong></td>
+          <td>$${Number(entry.amount).toFixed(2)}</td>
+          <td><span class="table-tag ${tagClass}">${entry.risk}</span></td>
+          <td>${(entry.prob * 100).toFixed(1)}%</td>
+          <td style="color: #55666c;">${entry.factor}</td>
+          <td><strong>${entry.action.replaceAll('_', ' ')}</strong></td>
         `;
         tbody.appendChild(tr);
       });
@@ -513,7 +1526,7 @@
       if (auditLogs.length > 20) auditLogs.pop();
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(auditLogs));
-      } catch (e) {}
+      } catch (e) { }
       renderAuditTable();
     }
 
@@ -529,7 +1542,7 @@
             return;
           }
         }
-      } catch (e) {}
+      } catch (e) { }
 
       // Fallback to browser local storage if offline or container restarted
       try {
@@ -548,7 +1561,7 @@
       try {
         localStorage.removeItem(STORAGE_KEY);
         await fetch('/api/audit-logs/clear', { method: 'POST' });
-      } catch (e) {}
+      } catch (e) { }
       renderAuditTable();
     }
 
@@ -688,4 +1701,5 @@
     loadAuditLogs();
   </script>
 </body>
+
 </html>
