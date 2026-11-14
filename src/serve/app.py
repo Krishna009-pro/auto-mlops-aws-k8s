@@ -13,7 +13,12 @@ import pandas as pd
 import joblib
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel, Field
+
+# Project root calculation for local templates
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_PATH = os.path.join(CURRENT_DIR, "templates", "index.html")
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -130,14 +135,52 @@ class PredictionResponse(BaseModel):
     action_recommended: str
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {
-        "service": "MLOps Fraud Detection Inference API",
-        "status": "online",
-        "documentation": "/docs",
-        "health_check": "/health",
-    }
+    """Serves the full-stack MLOps web dashboard."""
+    if os.path.exists(TEMPLATE_PATH):
+        with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse("<h1>SentinelOps API Online</h1><p>Visit <a href='/docs'>/docs</a> for API docs.</p>")
+
+
+@app.post("/api/retrain")
+def api_retrain_model():
+    """
+    Simulates automated Continuous Training (CT) and zero-downtime deployment.
+    Triggered from the full-stack web UI.
+    """
+    global model_cache
+    try:
+        from src.dataset.generate_data import generate_fraud_data
+        from src.train.train import train_model
+
+        # 1. Generate new drift dataset
+        df_new = generate_fraud_data(num_samples=3500, fraud_rate=0.10, drift_factor=0.3, random_seed=99)
+
+        # 2. Train new model version
+        version = f"v2.{int(pd.Timestamp.now().timestamp()) % 1000}"
+        metrics = train_model(
+            df=df_new,
+            version=version,
+            model_dir="artifacts/models",
+            metrics_dir="artifacts/metrics",
+            s3_bucket=None,
+        )
+
+        # 3. Reload in-memory cache (simulating zero-downtime hot reload)
+        model_cache["model"] = joblib.load("artifacts/models/model.joblib")
+        model_cache["version"] = version
+        model_cache["metrics"] = metrics
+
+        logger.info(f"Model hot-reloaded to version {version} with accuracy {metrics['accuracy']:.4f}")
+        return metrics
+    except Exception as e:
+        logger.error(f"Retraining error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Automated retraining failed: {str(e)}",
+        )
 
 
 @app.get("/health", status_code=status.HTTP_200_OK)

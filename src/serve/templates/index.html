@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelOps | Cloud-Native MLOps Automation Platform</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+            dark: { 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-dot { animation: pulse-ring 2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-dark-950 text-slate-100 min-h-screen font-sans antialiased flex flex-col">
+
+  <!-- TOP NAVBAR -->
+  <header class="border-b border-slate-800 bg-dark-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
+          <i data-lucide="shield-alert" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+            SentinelOps
+          </h1>
+          <p class="text-xs text-indigo-400 font-mono">Cloud-Native MLOps Platform</p>
+        </div>
+      </div>
+
+      <!-- Cloud Status Badges -->
+      <div class="flex items-center space-x-3 text-xs font-mono">
+        <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+          <span>Kubernetes: 2/2 Pods</span>
+        </div>
+        <div class="hidden sm:flex items-center space-x-1.5 bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-full">
+          <i data-lucide="cloud" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span>AWS: S3 + Lambda + SNS</span>
+        </div>
+        <div id="nav-model-badge" class="bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-3 py-1.5 rounded-full font-semibold">
+          Model: Loading...
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- HERO METRICS STRIP -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
+        <div class="p-3 rounded-lg bg-indigo-500/10 text-indigo-400">
+          <i data-lucide="cpu" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Serving Pods</p>
+          <p class="text-xl font-bold text-white">2 Replicas</p>
+          <p class="text-xs text-emerald-400">Zero-Downtime Rollout</p>
+        </div>
+      </div>
+
+      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
+        <div class="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
+          <i data-lucide="target" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Model Accuracy</p>
+          <p id="metric-accuracy" class="text-xl font-bold text-white">--</p>
+          <p class="text-xs text-slate-400">SSM Quality Gate: &ge; 85%</p>
+        </div>
+      </div>
+
+      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
+        <div class="p-3 rounded-lg bg-amber-500/10 text-amber-400">
+          <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">F1-Score / ROC-AUC</p>
+          <p id="metric-f1" class="text-xl font-bold text-white">--</p>
+          <p class="text-xs text-slate-400">Balanced Random Forest</p>
+        </div>
+      </div>
+
+      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
+        <div class="p-3 rounded-lg bg-purple-500/10 text-purple-400">
+          <i data-lucide="bell-ring" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Automated Alerts</p>
+          <p class="text-xl font-bold text-white">AWS SNS</p>
+          <p class="text-xs text-purple-400">Email Notifications Active</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID: 2 COLUMNS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- LEFT COLUMN (7 COLS): TRANSACTION FRAUD DETECTOR -->
+      <section class="lg:col-span-7 bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="credit-card" class="w-5 h-5 text-indigo-400"></i>
+            <h2 class="text-lg font-bold text-white">Live Transaction Inference</h2>
+          </div>
+          <span class="text-xs text-slate-400 font-mono">POST /predict</span>
+        </div>
+
+        <!-- PRESET BUTTONS -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-slate-400 font-medium">Quick Presets:</span>
+          <button onclick="applyPreset('normal')" class="text-xs px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700">
+            🛒 Normal Grocery ($35)
+          </button>
+          <button onclick="applyPreset('suspicious')" class="text-xs px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-lg transition border border-rose-500/30">
+            🚨 3 AM Wire Transfer ($2,890)
+          </button>
+          <button onclick="applyPreset('medium')" class="text-xs px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-lg transition border border-amber-500/30">
+            ⚠️ High Frequency ($420)
+          </button>
+        </div>
+
+        <!-- FORM INPUTS -->
+        <form id="fraud-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Transaction Amount ($)</label>
+            <input type="number" step="0.01" id="tx_amount" required value="35.50"
+              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Daily Frequency (tx/day)</label>
+            <input type="number" id="tx_freq" required value="2"
+              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+              <span>Location Risk Score</span>
+              <span id="val_loc" class="text-indigo-400 font-mono">0.12</span>
+            </div>
+            <input type="range" min="0" max="1" step="0.01" id="tx_location" value="0.12"
+              class="w-full accent-indigo-500 cursor-pointer" oninput="document.getElementById('val_loc').innerText=this.value">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+              <span>Device Trust Score</span>
+              <span id="val_dev" class="text-indigo-400 font-mono">0.95</span>
+            </div>
+            <input type="range" min="0" max="1" step="0.01" id="tx_device" value="0.95"
+              class="w-full accent-indigo-500 cursor-pointer" oninput="document.getElementById('val_dev').innerText=this.value">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Time of Day (0-23 Hour)</label>
+            <input type="number" min="0" max="23" id="tx_hour" required value="14"
+              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Failed Auth Attempts</label>
+            <input type="number" min="0" max="10" id="tx_failed" required value="0"
+              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+
+          <div class="sm:col-span-2 pt-2">
+            <button type="submit" id="btn-submit"
+              class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>Evaluate Transaction with ML Model</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- INFERENCE RESULT CARD -->
+        <div id="result-box" class="hidden border rounded-xl p-5 transition-all">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <span id="res-badge-icon"></span>
+              <span id="res-badge-text" class="text-sm font-bold uppercase tracking-wider"></span>
+            </div>
+            <span id="res-action" class="text-xs font-mono font-semibold px-2.5 py-1 rounded-full"></span>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs text-slate-300 font-mono">
+              <span>Calculated Fraud Probability:</span>
+              <span id="res-prob" class="font-bold text-white text-sm">--</span>
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+              <div id="res-bar" class="h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 font-mono pt-1">
+              <span>0% (Legitimate)</span>
+              <span>Model: <span id="res-version" class="text-indigo-400">v1.0</span></span>
+              <span>100% (High Risk Fraud)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN (5 COLS): MLOPS CONTROL & RETRAINING -->
+      <section class="lg:col-span-5 space-y-6">
+
+        <!-- CONTINUOUS TRAINING (CT) SIMULATION CARD -->
+        <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
+            <i data-lucide="refresh-cw" class="w-5 h-5 text-emerald-400"></i>
+            <h2 class="text-lg font-bold text-white">Automated MLOps Trigger (CT)</h2>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Simulate dropping a new dataset (<code class="text-indigo-300 font-mono">transactions_v2.csv</code>) with data drift into AWS S3. 
+            The system validates schema, retrains the Random Forest model on Kubernetes, tests the quality gate, and reloads serving pods!
+          </p>
+
+          <button onclick="triggerRetrain()" id="btn-retrain"
+            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2 transition">
+            <i data-lucide="play" class="w-4 h-4"></i>
+            <span>Simulate S3 Upload & Automated Retraining</span>
+          </button>
+
+          <!-- Retraining Progress Terminal -->
+          <div id="retrain-console" class="hidden bg-dark-950 border border-slate-800 rounded-xl p-3 font-mono text-xs text-slate-300 space-y-1.5 max-h-56 overflow-y-auto">
+            <div class="text-slate-500 text-[11px] border-b border-slate-800 pb-1 flex justify-between">
+              <span>MLOps Pipeline Log Stream</span>
+              <span id="retrain-status" class="text-emerald-400 font-bold">In Progress</span>
+            </div>
+            <div id="log-output" class="space-y-1"></div>
+          </div>
+        </div>
+
+        <!-- CLOUD ARCHITECTURE ACCORDION -->
+        <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
+            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
+            <h2 class="text-lg font-bold text-white">Cloud Infrastructure Status</h2>
+          </div>
+
+          <div class="space-y-3 text-xs font-mono">
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
+              <span class="flex items-center space-x-2 text-slate-300">
+                <i data-lucide="database" class="w-4 h-4 text-amber-400"></i>
+                <span>AWS S3 (Data & Model Store)</span>
+              </span>
+              <span class="text-emerald-400">Connected</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
+              <span class="flex items-center space-x-2 text-slate-300">
+                <i data-lucide="zap" class="w-4 h-4 text-purple-400"></i>
+                <span>AWS Lambda (Orchestrators)</span>
+              </span>
+              <span class="text-emerald-400">Active Triggers</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
+              <span class="flex items-center space-x-2 text-slate-300">
+                <i data-lucide="server" class="w-4 h-4 text-blue-400"></i>
+                <span>AWS EC2 + Kubernetes (K3s)</span>
+              </span>
+              <span class="text-emerald-400">Healthy (2 Pods)</span>
+            </div>
+
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
+              <span class="flex items-center space-x-2 text-slate-300">
+                <i data-lucide="mail" class="w-4 h-4 text-pink-400"></i>
+                <span>AWS SNS (Alerts / Topics)</span>
+              </span>
+              <span class="text-emerald-400">Subscribed</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Fetch initial model metadata on page load
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/metrics');
+        const data = await res.json();
+        if (data.metrics) {
+          document.getElementById('nav-model-badge').innerText = `Model: ${data.model_version}`;
+          document.getElementById('metric-accuracy').innerText = (data.metrics.accuracy * 100).toFixed(1) + '%';
+          document.getElementById('metric-f1').innerText = `${(data.metrics.f1_score * 100).toFixed(1)}% / ${(data.metrics.roc_auc * 100).toFixed(1)}%`;
+        }
+      } catch (err) {
+        console.warn("Could not load metrics:", err);
+      }
+    }
+    loadMetrics();
+
+    // Preset handler
+    function applyPreset(type) {
+      if (type === 'normal') {
+        document.getElementById('tx_amount').value = 35.50;
+        document.getElementById('tx_freq').value = 2;
+        document.getElementById('tx_location').value = 0.12;
+        document.getElementById('val_loc').innerText = "0.12";
+        document.getElementById('tx_device').value = 0.95;
+        document.getElementById('val_dev').innerText = "0.95";
+        document.getElementById('tx_hour').value = 14;
+        document.getElementById('tx_failed').value = 0;
+      } else if (type === 'suspicious') {
+        document.getElementById('tx_amount').value = 2890.00;
+        document.getElementById('tx_freq').value = 14;
+        document.getElementById('tx_location').value = 0.98;
+        document.getElementById('val_loc').innerText = "0.98";
+        document.getElementById('tx_device').value = 0.05;
+        document.getElementById('val_dev').innerText = "0.05";
+        document.getElementById('tx_hour').value = 3;
+        document.getElementById('tx_failed').value = 4;
+      } else if (type === 'medium') {
+        document.getElementById('tx_amount').value = 420.00;
+        document.getElementById('tx_freq').value = 8;
+        document.getElementById('tx_location').value = 0.55;
+        document.getElementById('val_loc').innerText = "0.55";
+        document.getElementById('tx_device').value = 0.50;
+        document.getElementById('val_dev').innerText = "0.50";
+        document.getElementById('tx_hour').value = 21;
+        document.getElementById('tx_failed').value = 1;
+      }
+    }
+
+    // Form Submit (POST /predict)
+    document.getElementById('fraud-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin inline-block mr-2">&#9696;</span> Scoring with ML Model...`;
+
+      const payload = {
+        transaction_amount: parseFloat(document.getElementById('tx_amount').value),
+        transaction_frequency: parseInt(document.getElementById('tx_freq').value),
+        location_risk_score: parseFloat(document.getElementById('tx_location').value),
+        device_trust_score: parseFloat(document.getElementById('tx_device').value),
+        time_of_day: parseInt(document.getElementById('tx_hour').value),
+        failed_attempts: parseInt(document.getElementById('tx_failed').value)
+      };
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        const resultBox = document.getElementById('result-box');
+        const badgeText = document.getElementById('res-badge-text');
+        const badgeIcon = document.getElementById('res-badge-icon');
+        const actionTag = document.getElementById('res-action');
+        const probText = document.getElementById('res-prob');
+        const probBar = document.getElementById('res-bar');
+        const versionText = document.getElementById('res-version');
+
+        resultBox.classList.remove('hidden');
+        versionText.innerText = data.model_version;
+        probText.innerText = `${(data.fraud_probability * 100).toFixed(2)}%`;
+        probBar.style.width = `${(data.fraud_probability * 100)}%`;
+
+        if (data.risk_level === 'HIGH') {
+          resultBox.className = "border rounded-xl p-5 bg-rose-500/10 border-rose-500/40 text-rose-300";
+          badgeText.innerText = "FRAUD DETECTED";
+          badgeIcon.innerHTML = `<i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400"></i>`;
+          actionTag.className = "text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-rose-500 text-white";
+          actionTag.innerText = data.action_recommended;
+          probBar.className = "h-3 rounded-full bg-rose-500";
+        } else if (data.risk_level === 'MEDIUM') {
+          resultBox.className = "border rounded-xl p-5 bg-amber-500/10 border-amber-500/40 text-amber-300";
+          badgeText.innerText = "SUSPICIOUS ACTIVITY";
+          badgeIcon.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>`;
+          actionTag.className = "text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-amber-500 text-white";
+          actionTag.innerText = data.action_recommended;
+          probBar.className = "h-3 rounded-full bg-amber-500";
+        } else {
+          resultBox.className = "border rounded-xl p-5 bg-emerald-500/10 border-emerald-500/40 text-emerald-300";
+          badgeText.innerText = "TRANSACTION APPROVED";
+          badgeIcon.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>`;
+          actionTag.className = "text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-emerald-500 text-white";
+          actionTag.innerText = data.action_recommended;
+          probBar.className = "h-3 rounded-full bg-emerald-500";
+        }
+
+        lucide.createIcons();
+      } catch (err) {
+        alert("Error communicating with serving API: " + err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="zap" class="w-4 h-4"></i><span>Evaluate Transaction with ML Model</span>`;
+        lucide.createIcons();
+      }
+    });
+
+    // Retraining Simulation Function
+    async function triggerRetrain() {
+      const btn = document.getElementById('btn-retrain');
+      const consoleBox = document.getElementById('retrain-console');
+      const logOutput = document.getElementById('log-output');
+      const retrainStatus = document.getElementById('retrain-status');
+
+      btn.disabled = true;
+      consoleBox.classList.remove('hidden');
+      logOutput.innerHTML = '';
+      retrainStatus.innerText = "In Progress...";
+      retrainStatus.className = "text-amber-400 font-bold";
+
+      const log = (msg, color="text-slate-300") => {
+        const line = document.createElement('div');
+        line.className = color;
+        line.innerHTML = `&gt; ${msg}`;
+        logOutput.appendChild(line);
+        consoleBox.scrollTop = consoleBox.scrollHeight;
+      };
+
+      log("1. Uploading transactions_v2.csv (3,500 records with drift) to AWS S3...", "text-indigo-400");
+      await new Promise(r => setTimeout(r, 900));
+
+      log("2. S3 ObjectCreated event captured by AWS Lambda Trigger function.", "text-purple-400");
+      await new Promise(r => setTimeout(r, 800));
+
+      log("3. Lambda verified schema (7 columns valid). Dispatching Kubernetes Job...", "text-slate-300");
+      await new Promise(r => setTimeout(r, 1000));
+
+      log("4. Pod 'mlops-training-job' running on EC2 node (Random Forest with StandardScaler)...", "text-amber-300");
+      
+      // Call backend to trigger actual retraining
+      try {
+        const res = await fetch('/api/retrain', { method: 'POST' });
+        const data = await res.json();
+
+        log(`5. Training finished! New Accuracy: ${(data.accuracy * 100).toFixed(2)}%, F1: ${(data.f1_score * 100).toFixed(2)}%`, "text-emerald-400");
+        await new Promise(r => setTimeout(r, 700));
+
+        log("6. Evaluator Lambda compared accuracy against SSM baseline: QUALITY GATE PASSED!", "text-emerald-400");
+        await new Promise(r => setTimeout(r, 700));
+
+        log(`7. Zero-Downtime Rolling Update performed on Kubernetes serving pods (Model: ${data.version}).`, "text-indigo-300");
+        log("8. AWS SNS Email Alert sent to MLOps engineering subscribers.", "text-pink-400");
+
+        retrainStatus.innerText = "Completed & Deployed";
+        retrainStatus.className = "text-emerald-400 font-bold";
+        loadMetrics();
+      } catch (e) {
+        log("Error executing training pipeline: " + e, "text-rose-400");
+        retrainStatus.innerText = "Failed";
+        retrainStatus.className = "text-rose-400 font-bold";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

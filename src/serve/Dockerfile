@@ -13,8 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy application files and full-stack web UI templates
 COPY app.py .
+COPY templates/ ./templates/
 
 # Expose FastAPI port
 EXPOSE 8000
