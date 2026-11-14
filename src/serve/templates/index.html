@@ -354,7 +354,10 @@
           <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
           <div><h2 id="audit-title">Live Transaction Stream & Audit Log</h2><p class="panel-description">Real-time inference events and model governance decisions.</p></div>
         </div>
-        <span class="endpoint">Buffer: Real-time Stream</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="endpoint">Buffer: Persistent Stream</span>
+          <button type="button" onclick="clearAuditLog()" style="background: #f1f5f4; border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font-size: 10px; font-weight: 600; color: #55676c; cursor: pointer;">Clear log</button>
+        </div>
       </div>
       <div class="table-responsive">
         <table class="audit-table">
@@ -438,12 +441,16 @@
       setTransaction(presets[type]);
     }
 
-    const auditLogs = [];
-    function addAuditEntry(item) {
-      auditLogs.unshift(item);
-      if (auditLogs.length > 10) auditLogs.pop();
+    const STORAGE_KEY = 'sentinelops_audit_logs';
+    let auditLogs = [];
+
+    function renderAuditTable() {
       const tbody = byId('audit-log-body');
       tbody.replaceChildren();
+      if (!auditLogs.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No transactions scored yet. Click "Score transaction" or a preset above.</td></tr>';
+        return;
+      }
       auditLogs.forEach((entry) => {
         const tr = document.createElement('tr');
         const tagClass = entry.risk === 'HIGH' ? 'risk-high' : entry.risk === 'MEDIUM' ? 'risk-medium' : 'risk-low';
@@ -457,6 +464,50 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function addAuditEntry(item) {
+      auditLogs.unshift(item);
+      if (auditLogs.length > 20) auditLogs.pop();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(auditLogs));
+      } catch (e) {}
+      renderAuditTable();
+    }
+
+    async function loadAuditLogs() {
+      try {
+        const response = await fetch('/api/audit-logs');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.logs && data.logs.length) {
+            auditLogs = data.logs;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(auditLogs));
+            renderAuditTable();
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Fallback to browser local storage if offline or container restarted
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          auditLogs = JSON.parse(saved);
+        }
+      } catch (e) {
+        auditLogs = [];
+      }
+      renderAuditTable();
+    }
+
+    async function clearAuditLog() {
+      auditLogs = [];
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        await fetch('/api/audit-logs/clear', { method: 'POST' });
+      } catch (e) {}
+      renderAuditTable();
     }
 
     byId('tx_location').addEventListener('input', (event) => {
@@ -581,6 +632,7 @@
 
     loadMetrics();
     loadHealth();
+    loadAuditLogs();
   </script>
 </body>
 </html>

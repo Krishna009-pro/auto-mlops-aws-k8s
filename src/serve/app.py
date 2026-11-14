@@ -38,6 +38,9 @@ model_cache = {
     "metrics": {},
 }
 
+# In-memory transaction audit history
+audit_history: list[dict] = []
+
 
 def generate_synthetic_fraud_data(
     num_samples: int = 2000,
@@ -384,6 +387,19 @@ def predict(request: TransactionRequest):
 
         logger.info(f"Prediction: Fraud={prediction}, Prob={probability:.4f}, Risk={risk}, Factors={len(risk_factors)}")
 
+        # Record in persistent audit history
+        audit_entry = {
+            "timestamp": pd.Timestamp.now().strftime("%H:%M:%S"),
+            "amount": request.transaction_amount,
+            "risk": risk,
+            "prob": round(probability, 4),
+            "factor": risk_factors[0] if risk_factors else "Normal baseline",
+            "action": action,
+        }
+        audit_history.insert(0, audit_entry)
+        if len(audit_history) > 25:
+            audit_history.pop()
+
         return PredictionResponse(
             is_fraud=prediction,
             fraud_probability=round(probability, 4),
@@ -398,6 +414,19 @@ def predict(request: TransactionRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Inference computation error: {str(e)}",
         )
+
+
+@app.get("/api/audit-logs")
+def get_audit_logs():
+    """Returns recent transaction audit history."""
+    return {"logs": audit_history}
+
+
+@app.post("/api/audit-logs/clear")
+def clear_audit_logs():
+    """Clears the in-memory audit log history."""
+    audit_history.clear()
+    return {"status": "cleared"}
 
 
 @app.post("/reload")
