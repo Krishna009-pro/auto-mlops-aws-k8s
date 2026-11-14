@@ -1,0 +1,37 @@
+services:
+  # 1. Full-Stack Web App & Real-Time Model Serving Microservice
+  mlops-serving:
+    build:
+      context: ./src/serve
+      dockerfile: Dockerfile
+    image: krishna250/mlops-serving:latest
+    container_name: mlops-serving-api
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_REGION=ap-south-1
+      - S3_BUCKET=${S3_BUCKET:-}
+      - LOCAL_MODEL_PATH=/app/artifacts/models/model.joblib
+      - LOCAL_METRICS_PATH=/app/artifacts/metrics/metrics.json
+    volumes:
+      - ./artifacts:/app/artifacts
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # 2. Ephemeral Machine Learning Model Training Service
+  mlops-trainer:
+    build:
+      context: ./src/train
+      dockerfile: Dockerfile
+    image: krishna250/mlops-trainer:latest
+    container_name: mlops-trainer-job
+    volumes:
+      - ./data:/app/data
+      - ./artifacts:/app/artifacts
+    profiles:
+      - train
