@@ -311,3 +311,4 @@ When finished or after your practical submission:
 2. **Empty S3 Bucket:** Go to **S3** $\rightarrow$ Select `icem-mlops-krishna250` $\rightarrow$ Click **Empty** $\rightarrow$ Click **Delete**.
 3. **Delete Lambda:** Delete function `MLOpsProcessor`.
 4. **Delete SNS Topic:** Delete `mlops-alerts`.
+
