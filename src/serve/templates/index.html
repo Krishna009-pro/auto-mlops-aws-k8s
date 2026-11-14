@@ -2,485 +2,489 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SentinelOps | Cloud-Native MLOps Automation Platform</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
-            dark: { 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
-          }
-        }
-      }
-    }
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f8">
+  <title>SentinelOps | Model workspace</title>
   <style>
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 0.4; }
-      100% { transform: scale(0.95); opacity: 0.8; }
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --ink: #15262c;
+      --muted: #708087;
+      --line: #e4e9e9;
+      --paper: #fff;
+      --canvas: #f5f7f8;
+      --green: #237a64;
+      --green-dark: #195f4d;
+      --green-soft: #eaf5f1;
+      --blue-soft: #edf3f8;
+      --shadow: 0 12px 36px rgb(27 52 57 / 5%);
     }
-    .pulse-dot { animation: pulse-ring 2s infinite ease-in-out; }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #8ac9b6; outline-offset: 2px; }
+    .shell { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
+
+    .topbar { position: sticky; z-index: 5; inset-block-start: 0; border-block-end: 1px solid var(--line); background: rgb(255 255 255 / 94%); backdrop-filter: blur(12px); }
+    .topbar-inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark { inline-size: 42px; block-size: 42px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 13px; background: var(--green); color: white; }
+    .brand-mark svg { inline-size: 22px; block-size: 22px; }
+    .brand-name { margin: 0; font-size: 16px; font-weight: 750; letter-spacing: -.035em; }
+    .brand-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 11px; letter-spacing: .015em; }
+    .topbar-meta { display: flex; align-items: center; gap: 10px; }
+    .status-pill, .model-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: #53636a; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .model-pill { color: var(--green-dark); border-color: #cfe4dc; background: var(--green-soft); }
+    .status-dot { inline-size: 7px; block-size: 7px; border-radius: 50%; background: #39a17f; box-shadow: 0 0 0 3px #e2f2ec; }
+
+    main { padding-block: 38px 56px; }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-block-end: 26px; }
+    .eyebrow { margin: 0 0 9px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(1.7rem, 1.2rem + 2vw, 2.375rem); line-height: 1.08; letter-spacing: -.055em; }
+    .intro-copy { max-width: 590px; margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .local-tag { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid #dce5ea; border-radius: 10px; background: #f0f4f7; color: #536671; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .local-tag svg { inline-size: 15px; block-size: 15px; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-block-end: 22px; }
+    .metric-card { min-width: 0; padding: 18px 19px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 2px 8px rgb(27 52 57 / 2%); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .metric-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .075em; text-transform: uppercase; }
+    .metric-icon { inline-size: 30px; block-size: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--green-soft); color: var(--green); }
+    .metric-icon svg { inline-size: 16px; block-size: 16px; }
+    .metric-value { overflow: hidden; margin: 14px 0 4px; font-size: 25px; font-weight: 740; letter-spacing: -.045em; text-overflow: ellipsis; white-space: nowrap; }
+    .metric-note { margin: 0; color: var(--muted); font-size: 11px; }
+
+    .pipeline { display: flex; align-items: center; gap: 10px; overflow: auto; padding: 12px 16px; margin-block-end: 22px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfc; scrollbar-width: thin; }
+    .pipeline-label { margin-inline-end: 6px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .stage { display: inline-flex; align-items: center; gap: 8px; color: #495d64; font-size: 12px; font-weight: 650; white-space: nowrap; }
+    .stage-number { inline-size: 22px; block-size: 22px; display: grid; place-items: center; border-radius: 7px; background: var(--green-soft); color: var(--green-dark); font-size: 10px; }
+    .stage-arrow { color: #aab6b8; font-size: 14px; }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.38fr) minmax(300px, .82fr); align-items: start; gap: 20px; }
+    .stack { display: grid; gap: 20px; min-width: 0; }
+    .panel { min-width: 0; padding: 23px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: var(--shadow); }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-block-end: 17px; border-block-end: 1px solid #edf0f0; }
+    .panel-title-wrap { display: flex; align-items: flex-start; gap: 12px; }
+    .panel-icon { inline-size: 35px; block-size: 35px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 10px; background: var(--blue-soft); color: #55748b; }
+    .panel-icon svg { inline-size: 18px; block-size: 18px; }
+    h2 { margin: 1px 0 5px; font-size: 15px; font-weight: 730; letter-spacing: -.02em; }
+    .panel-description { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .endpoint { padding: 6px 8px; border-radius: 7px; background: #f2f5f5; color: #637278; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; white-space: nowrap; }
+
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 17px 19px; }
+    .preset { min-height: 32px; padding: 0 11px; border: 1px solid #e3e9e8; border-radius: 8px; background: #fff; color: #506168; cursor: pointer; font-size: 11px; font-weight: 620; transition: background .15s ease, border-color .15s ease, transform .15s ease; }
+    .preset:hover { transform: translateY(-1px); border-color: #b9d8cd; background: #f7fbf9; }
+    .preset[data-tone="risk"] { color: #9b534c; }
+    .preset[data-tone="watch"] { color: #8a6b31; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 16px; }
+    .field { display: grid; gap: 7px; min-width: 0; }
+    .field-label, .range-heading { color: #47585e; font-size: 11px; font-weight: 690; }
+    .input-wrap { position: relative; }
+    .input-prefix { position: absolute; inset-inline-start: 12px; inset-block-start: 50%; color: #869398; font-size: 12px; transform: translateY(-50%); pointer-events: none; }
+    .field input[type="number"] { inline-size: 100%; min-height: 42px; padding: 0 12px; border: 1px solid #dfe6e5; border-radius: 9px; background: #fff; color: var(--ink); font-size: 13px; transition: border-color .15s ease, box-shadow .15s ease; }
+    .field input.has-prefix { padding-inline-start: 27px; }
+    .field input[type="number"]:focus { border-color: #78b49f; box-shadow: 0 0 0 3px rgb(71 151 123 / 12%); outline: 0; }
+    .range-field { align-content: start; }
+    .range-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .range-value { color: var(--green-dark); font-variant-numeric: tabular-nums; font-size: 11px; font-weight: 700; }
+    input[type="range"] { inline-size: 100%; height: 24px; margin: 0; accent-color: var(--green); cursor: pointer; }
+    .range-ends { display: flex; justify-content: space-between; color: #98a3a6; font-size: 9px; }
+    .form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding-block-start: 1px; }
+    .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 43px; padding: 0 16px; border: 1px solid transparent; border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 700; transition: background .15s ease, transform .15s ease; }
+    .primary-button { flex: 1; background: var(--green); color: white; box-shadow: 0 4px 10px rgb(35 122 100 / 15%); }
+    .primary-button:hover:not(:disabled) { transform: translateY(-1px); background: var(--green-dark); }
+    .primary-button:disabled, .secondary-button:disabled { cursor: wait; opacity: .65; }
+    .button-icon { font-size: 15px; line-height: 1; }
+    .result { margin-block-start: 19px; padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: #fafcfc; }
+    .result[hidden] { display: none; }
+    .result[data-risk="high"] { border-color: #f0d5d1; background: #fff8f7; }
+    .result[data-risk="medium"] { border-color: #eee2c7; background: #fffcf6; }
+    .result[data-risk="low"] { border-color: #d4e9df; background: #f6fbf8; }
+    .result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-block-end: 15px; }
+    .result-title { margin: 0; font-size: 13px; font-weight: 750; }
+    .result-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .risk-tag { padding: 6px 9px; border-radius: 999px; background: #eaf5f1; color: var(--green-dark); font-size: 9px; font-weight: 760; letter-spacing: .04em; }
+    [data-risk="high"] .risk-tag { background: #f9e7e4; color: #a34e43; }
+    [data-risk="medium"] .risk-tag { background: #f8efd9; color: #896829; }
+    .probability-row { display: flex; justify-content: space-between; gap: 10px; margin-block-end: 8px; color: #66767b; font-size: 10px; }
+    .probability-row strong { color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .prob-track { block-size: 7px; overflow: hidden; border-radius: 999px; background: #e7eceb; }
+    .prob-bar { block-size: 100%; inline-size: 0; border-radius: inherit; background: var(--green); transition: inline-size .4s ease; }
+    [data-risk="high"] .prob-bar { background: #c56a5d; }
+    [data-risk="medium"] .prob-bar { background: #c59a45; }
+    .result-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-block-start: 10px; color: #7b898d; font-size: 10px; }
+    .result-message { min-height: 16px; margin: 11px 0 0; color: #a34e43; font-size: 11px; }
+
+    .retrain-panel { background: linear-gradient(145deg, #fff 0%, #f8fbf9 100%); }
+    .retrain-copy { margin: 17px 0; color: #66767b; font-size: 12px; line-height: 1.7; }
+    .retrain-copy code { color: var(--green-dark); font-size: 11px; }
+    .secondary-button { width: 100%; border-color: #cfe2d9; background: #edf6f2; color: var(--green-dark); }
+    .secondary-button:hover:not(:disabled) { background: #e2f0e9; }
+    .terminal { margin-block-start: 14px; padding: 13px; border: 1px solid #e7ece9; border-radius: 10px; background: #f8faf9; }
+    .terminal[hidden] { display: none; }
+    .terminal-head { display: flex; justify-content: space-between; gap: 8px; padding-block-end: 9px; border-block-end: 1px solid #e8edeb; color: #7d898d; font-size: 10px; }
+    .terminal-status { color: #9b762f; font-weight: 750; }
+    .log-output { display: grid; gap: 7px; max-block-size: 180px; overflow: auto; padding-block-start: 10px; color: #56696e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; line-height: 1.5; }
+    .log-line { display: flex; gap: 7px; }
+    .log-mark { color: var(--green); }
+
+    .infra-list { display: grid; gap: 0; margin-block-start: 6px; }
+    .infra-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 49px; border-block-end: 1px solid #edf0f0; }
+    .infra-row:last-child { border: 0; }
+    .infra-name { display: flex; align-items: center; gap: 9px; min-width: 0; color: #526269; font-size: 11px; font-weight: 610; }
+    .infra-symbol { inline-size: 25px; block-size: 25px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 7px; background: #f1f5f4; color: #638078; font-size: 11px; font-weight: 750; }
+    .infra-state { color: #7d898d; font-size: 10px; white-space: nowrap; }
+    .infra-note { margin: 12px 0 0; padding: 10px 11px; border-radius: 8px; background: #f4f7f7; color: #758388; font-size: 10px; line-height: 1.55; }
+    footer { display: flex; justify-content: space-between; gap: 16px; padding-block-start: 21px; margin-block-start: 22px; border-block-start: 1px solid var(--line); color: #899599; font-size: 10px; }
+
+    @media (max-width: 900px) {
+      .shell { width: min(100% - 36px, 760px); }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .workspace { grid-template-columns: minmax(0, 1fr); }
+      .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    }
+    @media (max-width: 600px) {
+      .shell { width: calc(100% - 28px); }
+      .topbar-inner { min-height: 66px; }
+      .brand-mark { inline-size: 37px; block-size: 37px; }
+      .brand-subtitle { font-size: 10px; }
+      .status-pill { display: none; }
+      .model-pill { min-height: 31px; padding-inline: 9px; font-size: 10px; }
+      main { padding-block: 27px 38px; }
+      .intro { align-items: flex-start; flex-direction: column; gap: 14px; }
+      .intro-copy { font-size: 13px; }
+      .metrics { gap: 9px; }
+      .metric-card { padding: 14px; }
+      .metric-value { font-size: 21px; }
+      .metric-label { font-size: 9px; }
+      .metric-note { font-size: 10px; }
+      .pipeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 11px; }
+      .pipeline-label { grid-column: 1 / -1; margin: 0 0 2px; }
+      .stage { min-height: 36px; padding-inline: 8px; border: 1px solid #edf0f0; border-radius: 8px; background: #fff; font-size: 10px; }
+      .stage-number { inline-size: 19px; block-size: 19px; }
+      .stage-arrow { display: none; }
+      .panel { padding: 17px; }
+      .panel-head { gap: 8px; }
+      .endpoint { font-size: 9px; }
+      .stack { grid-template-columns: minmax(0, 1fr); }
+      .preset { min-height: 40px; padding-inline: 12px; }
+      .field input[type="number"] { min-height: 46px; font-size: 16px; }
+      .primary-button, .secondary-button { min-height: 47px; }
+      input[type="range"] { min-height: 32px; }
+      footer { flex-direction: column; gap: 7px; }
+    }
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: minmax(0, 1fr); }
+      .form-actions { grid-column: auto; }
+    }
+    @media (max-width: 360px) {
+      .metric-card { padding: 12px; }
+      .metric-icon { inline-size: 26px; block-size: 26px; }
+      .panel-title-wrap { gap: 9px; }
+      .panel-icon { inline-size: 31px; block-size: 31px; }
+      .endpoint { padding: 5px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+    @media (forced-colors: active) {
+      .status-dot, .metric-icon, .panel-icon, .stage-number { border: 1px solid currentColor; }
+      button, input { forced-color-adjust: auto; }
+    }
   </style>
 </head>
-<body class="bg-dark-950 text-slate-100 min-h-screen font-sans antialiased flex flex-col">
-
-  <!-- TOP NAVBAR -->
-  <header class="border-b border-slate-800 bg-dark-900/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
-          <i data-lucide="shield-alert" class="w-6 h-6 text-white"></i>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
         </div>
         <div>
-          <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-            SentinelOps
-          </h1>
-          <p class="text-xs text-indigo-400 font-mono">Cloud-Native MLOps Platform</p>
+          <p class="brand-name">SentinelOps</p>
+          <p class="brand-subtitle">Fraud model workspace</p>
         </div>
       </div>
-
-      <!-- Cloud Status Badges -->
-      <div class="flex items-center space-x-3 text-xs font-mono">
-        <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-full">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
-          <span>Kubernetes: 2/2 Pods</span>
-        </div>
-        <div class="hidden sm:flex items-center space-x-1.5 bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-full">
-          <i data-lucide="cloud" class="w-3.5 h-3.5 text-indigo-400"></i>
-          <span>AWS: S3 + Lambda + SNS</span>
-        </div>
-        <div id="nav-model-badge" class="bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-3 py-1.5 rounded-full font-semibold">
-          Model: Loading...
-        </div>
+      <div class="topbar-meta">
+        <span class="status-pill"><span class="status-dot" aria-hidden="true"></span>Inference API</span>
+        <span id="nav-model-badge" class="model-pill">Model loading</span>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-    <!-- HERO METRICS STRIP -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
-        <div class="p-3 rounded-lg bg-indigo-500/10 text-indigo-400">
-          <i data-lucide="cpu" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Serving Pods</p>
-          <p class="text-xl font-bold text-white">2 Replicas</p>
-          <p class="text-xs text-emerald-400">Zero-Downtime Rollout</p>
-        </div>
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Model operations</p>
+        <h1 id="page-title">Good morning, operator.</h1>
+        <p class="intro-copy">Review model performance, score a transaction, or run a local retraining cycle from one place.</p>
       </div>
+      <span class="local-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="12" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+        Local demo environment
+      </span>
+    </section>
 
-      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
-        <div class="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
-          <i data-lucide="target" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Model Accuracy</p>
-          <p id="metric-accuracy" class="text-xl font-bold text-white">--</p>
-          <p class="text-xs text-slate-400">SSM Quality Gate: &ge; 85%</p>
-        </div>
-      </div>
+    <section class="metrics" aria-label="Current model summary">
+      <article class="metric-card">
+        <div class="metric-top"><span class="metric-label">Model version</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z"/></svg></span></div>
+        <p id="metric-version" class="metric-value">—</p><p class="metric-note">Loaded for inference</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span class="metric-label">Accuracy</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></span></div>
+        <p id="metric-accuracy" class="metric-value">—</p><p class="metric-note">Evaluation holdout</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span class="metric-label">F1 score</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V9m5 9V5m6 13v-7m5 7V3"/></svg></span></div>
+        <p id="metric-f1" class="metric-value">—</p><p class="metric-note">Precision and recall balance</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span class="metric-label">ROC-AUC</span><span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16M5 16l4-5 3 2 6-8"/></svg></span></div>
+        <p id="metric-auc" class="metric-value">—</p><p class="metric-note">Ranking performance</p>
+      </article>
+    </section>
 
-      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
-        <div class="p-3 rounded-lg bg-amber-500/10 text-amber-400">
-          <i data-lucide="activity" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">F1-Score / ROC-AUC</p>
-          <p id="metric-f1" class="text-xl font-bold text-white">--</p>
-          <p class="text-xs text-slate-400">Balanced Random Forest</p>
-        </div>
-      </div>
-
-      <div class="bg-dark-900 border border-slate-800 rounded-xl p-4 flex items-center space-x-4">
-        <div class="p-3 rounded-lg bg-purple-500/10 text-purple-400">
-          <i data-lucide="bell-ring" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Automated Alerts</p>
-          <p class="text-xl font-bold text-white">AWS SNS</p>
-          <p class="text-xs text-purple-400">Email Notifications Active</p>
-        </div>
-      </div>
+    <div class="pipeline" aria-label="Pipeline stages">
+      <span class="pipeline-label">Lifecycle</span>
+      <span class="stage"><span class="stage-number">01</span>Data</span><span class="stage-arrow" aria-hidden="true">→</span>
+      <span class="stage"><span class="stage-number">02</span>Train</span><span class="stage-arrow" aria-hidden="true">→</span>
+      <span class="stage"><span class="stage-number">03</span>Evaluate</span><span class="stage-arrow" aria-hidden="true">→</span>
+      <span class="stage"><span class="stage-number">04</span>Serve</span>
     </div>
 
-    <!-- MAIN GRID: 2 COLUMNS -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-      <!-- LEFT COLUMN (7 COLS): TRANSACTION FRAUD DETECTOR -->
-      <section class="lg:col-span-7 bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="credit-card" class="w-5 h-5 text-indigo-400"></i>
-            <h2 class="text-lg font-bold text-white">Live Transaction Inference</h2>
+    <div class="workspace">
+      <section class="panel" aria-labelledby="inference-title">
+        <div class="panel-head">
+          <div class="panel-title-wrap">
+            <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18m-14 5h4"/></svg></span>
+            <div><h2 id="inference-title">Transaction scoring</h2><p class="panel-description">Enter transaction signals to get a fraud risk estimate.</p></div>
           </div>
-          <span class="text-xs text-slate-400 font-mono">POST /predict</span>
+          <span class="endpoint">POST /predict</span>
         </div>
 
-        <!-- PRESET BUTTONS -->
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-slate-400 font-medium">Quick Presets:</span>
-          <button onclick="applyPreset('normal')" class="text-xs px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700">
-            🛒 Normal Grocery ($35)
-          </button>
-          <button onclick="applyPreset('suspicious')" class="text-xs px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-lg transition border border-rose-500/30">
-            🚨 3 AM Wire Transfer ($2,890)
-          </button>
-          <button onclick="applyPreset('medium')" class="text-xs px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-lg transition border border-amber-500/30">
-            ⚠️ High Frequency ($420)
-          </button>
+        <div class="presets" aria-label="Example transactions">
+          <button class="preset" type="button" onclick="applyPreset('normal')">Everyday purchase</button>
+          <button class="preset" data-tone="risk" type="button" onclick="applyPreset('suspicious')">Unusual transfer</button>
+          <button class="preset" data-tone="watch" type="button" onclick="applyPreset('medium')">High frequency</button>
         </div>
 
-        <!-- FORM INPUTS -->
-        <form id="fraud-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Transaction Amount ($)</label>
-            <input type="number" step="0.01" id="tx_amount" required value="35.50"
-              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Daily Frequency (tx/day)</label>
-            <input type="number" id="tx_freq" required value="2"
-              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Location Risk Score</span>
-              <span id="val_loc" class="text-indigo-400 font-mono">0.12</span>
-            </div>
-            <input type="range" min="0" max="1" step="0.01" id="tx_location" value="0.12"
-              class="w-full accent-indigo-500 cursor-pointer" oninput="document.getElementById('val_loc').innerText=this.value">
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
-              <span>Device Trust Score</span>
-              <span id="val_dev" class="text-indigo-400 font-mono">0.95</span>
-            </div>
-            <input type="range" min="0" max="1" step="0.01" id="tx_device" value="0.95"
-              class="w-full accent-indigo-500 cursor-pointer" oninput="document.getElementById('val_dev').innerText=this.value">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Time of Day (0-23 Hour)</label>
-            <input type="number" min="0" max="23" id="tx_hour" required value="14"
-              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Failed Auth Attempts</label>
-            <input type="number" min="0" max="10" id="tx_failed" required value="0"
-              class="w-full bg-dark-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-          </div>
-
-          <div class="sm:col-span-2 pt-2">
-            <button type="submit" id="btn-submit"
-              class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition">
-              <i data-lucide="zap" class="w-4 h-4"></i>
-              <span>Evaluate Transaction with ML Model</span>
-            </button>
-          </div>
+        <form id="fraud-form" class="form-grid">
+          <label class="field" for="tx_amount"><span class="field-label">Transaction amount</span><span class="input-wrap"><span class="input-prefix" aria-hidden="true">$</span><input class="has-prefix" type="number" step="0.01" min="0" id="tx_amount" required value="35.50"></span></label>
+          <label class="field" for="tx_freq"><span class="field-label">Daily frequency</span><input type="number" min="0" id="tx_freq" required value="2"></label>
+          <div class="field range-field"><div class="range-top"><label class="range-heading" for="tx_location">Location risk</label><output id="val_loc" class="range-value" for="tx_location">0.12</output></div><input type="range" min="0" max="1" step="0.01" id="tx_location" value="0.12"><div class="range-ends"><span>Low</span><span>High</span></div></div>
+          <div class="field range-field"><div class="range-top"><label class="range-heading" for="tx_device">Device trust</label><output id="val_dev" class="range-value" for="tx_device">0.95</output></div><input type="range" min="0" max="1" step="0.01" id="tx_device" value="0.95"><div class="range-ends"><span>Untrusted</span><span>Trusted</span></div></div>
+          <label class="field" for="tx_hour"><span class="field-label">Hour of day</span><input type="number" min="0" max="23" id="tx_hour" required value="14"></label>
+          <label class="field" for="tx_failed"><span class="field-label">Failed login attempts</span><input type="number" min="0" max="10" id="tx_failed" required value="0"></label>
+          <div class="form-actions"><button type="submit" id="btn-submit" class="primary-button"><span class="button-icon" aria-hidden="true">↗</span><span>Score transaction</span></button></div>
         </form>
 
-        <!-- INFERENCE RESULT CARD -->
-        <div id="result-box" class="hidden border rounded-xl p-5 transition-all">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center space-x-2">
-              <span id="res-badge-icon"></span>
-              <span id="res-badge-text" class="text-sm font-bold uppercase tracking-wider"></span>
-            </div>
-            <span id="res-action" class="text-xs font-mono font-semibold px-2.5 py-1 rounded-full"></span>
-          </div>
-
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs text-slate-300 font-mono">
-              <span>Calculated Fraud Probability:</span>
-              <span id="res-prob" class="font-bold text-white text-sm">--</span>
-            </div>
-            <!-- Progress Bar -->
-            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
-              <div id="res-bar" class="h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between text-[11px] text-slate-400 font-mono pt-1">
-              <span>0% (Legitimate)</span>
-              <span>Model: <span id="res-version" class="text-indigo-400">v1.0</span></span>
-              <span>100% (High Risk Fraud)</span>
-            </div>
-          </div>
-        </div>
+        <section id="result-box" class="result" data-risk="low" aria-live="polite" hidden>
+          <div class="result-head"><div><p id="res-badge-text" class="result-title">Prediction result</p><p class="result-subtitle">Model <span id="res-version">—</span></p></div><span id="res-action" class="risk-tag">—</span></div>
+          <div class="probability-row"><span>Fraud probability</span><strong id="res-prob">—</strong></div>
+          <div class="prob-track" role="meter" aria-label="Fraud probability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="res-bar" class="prob-bar"></div></div>
+          <div class="result-footer"><span>0% · Low risk</span><span>100% · High risk</span></div>
+        </section>
+        <p id="prediction-message" class="result-message" role="status"></p>
       </section>
 
-      <!-- RIGHT COLUMN (5 COLS): MLOPS CONTROL & RETRAINING -->
-      <section class="lg:col-span-5 space-y-6">
-
-        <!-- CONTINUOUS TRAINING (CT) SIMULATION CARD -->
-        <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
-            <i data-lucide="refresh-cw" class="w-5 h-5 text-emerald-400"></i>
-            <h2 class="text-lg font-bold text-white">Automated MLOps Trigger (CT)</h2>
-          </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Simulate dropping a new dataset (<code class="text-indigo-300 font-mono">transactions_v2.csv</code>) with data drift into AWS S3. 
-            The system validates schema, retrains the Random Forest model on Kubernetes, tests the quality gate, and reloads serving pods!
-          </p>
-
-          <button onclick="triggerRetrain()" id="btn-retrain"
-            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2 transition">
-            <i data-lucide="play" class="w-4 h-4"></i>
-            <span>Simulate S3 Upload & Automated Retraining</span>
-          </button>
-
-          <!-- Retraining Progress Terminal -->
-          <div id="retrain-console" class="hidden bg-dark-950 border border-slate-800 rounded-xl p-3 font-mono text-xs text-slate-300 space-y-1.5 max-h-56 overflow-y-auto">
-            <div class="text-slate-500 text-[11px] border-b border-slate-800 pb-1 flex justify-between">
-              <span>MLOps Pipeline Log Stream</span>
-              <span id="retrain-status" class="text-emerald-400 font-bold">In Progress</span>
-            </div>
-            <div id="log-output" class="space-y-1"></div>
-          </div>
-        </div>
-
-        <!-- CLOUD ARCHITECTURE ACCORDION -->
-        <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
-            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
-            <h2 class="text-lg font-bold text-white">Cloud Infrastructure Status</h2>
-          </div>
-
-          <div class="space-y-3 text-xs font-mono">
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
-              <span class="flex items-center space-x-2 text-slate-300">
-                <i data-lucide="database" class="w-4 h-4 text-amber-400"></i>
-                <span>AWS S3 (Data & Model Store)</span>
-              </span>
-              <span class="text-emerald-400">Connected</span>
-            </div>
-
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
-              <span class="flex items-center space-x-2 text-slate-300">
-                <i data-lucide="zap" class="w-4 h-4 text-purple-400"></i>
-                <span>AWS Lambda (Orchestrators)</span>
-              </span>
-              <span class="text-emerald-400">Active Triggers</span>
-            </div>
-
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
-              <span class="flex items-center space-x-2 text-slate-300">
-                <i data-lucide="server" class="w-4 h-4 text-blue-400"></i>
-                <span>AWS EC2 + Kubernetes (K3s)</span>
-              </span>
-              <span class="text-emerald-400">Healthy (2 Pods)</span>
-            </div>
-
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-dark-950 border border-slate-800">
-              <span class="flex items-center space-x-2 text-slate-300">
-                <i data-lucide="mail" class="w-4 h-4 text-pink-400"></i>
-                <span>AWS SNS (Alerts / Topics)</span>
-              </span>
-              <span class="text-emerald-400">Subscribed</span>
+      <div class="stack">
+        <section class="panel retrain-panel" aria-labelledby="retrain-title">
+          <div class="panel-head">
+            <div class="panel-title-wrap">
+              <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3"/></svg></span>
+              <div><h2 id="retrain-title">Retraining demo</h2><p class="panel-description">Generate drifted data and refresh the local model.</p></div>
             </div>
           </div>
-        </div>
+          <p class="retrain-copy">Run the training flow with a synthetic <code>transactions_v2.csv</code> sample, then reload the latest model in this app.</p>
+          <button onclick="triggerRetrain()" id="btn-retrain" class="secondary-button" type="button"><span class="button-icon" aria-hidden="true">↻</span><span>Run retraining demo</span></button>
+          <div id="retrain-console" class="terminal" hidden>
+            <div class="terminal-head"><span>Run activity</span><span id="retrain-status" class="terminal-status">Starting</span></div>
+            <div id="log-output" class="log-output" role="log" aria-live="polite"></div>
+          </div>
+        </section>
 
-      </section>
-
+        <section class="panel" aria-labelledby="environment-title">
+          <div class="panel-head">
+            <div class="panel-title-wrap">
+              <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01M12 7h5m-5 10h5"/></svg></span>
+              <div><h2 id="environment-title">Environment</h2><p class="panel-description">Services represented in this project.</p></div>
+            </div>
+          </div>
+          <div class="infra-list">
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">API</span>FastAPI inference</span><span id="api-state" class="infra-state">Checking</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">ML</span>Scikit-learn model</span><span id="model-state" class="infra-state">Checking</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">AWS</span>Cloud integrations</span><span class="infra-state">Optional setup</span></div>
+          </div>
+          <p class="infra-note">This page runs against the local FastAPI app. AWS and Kubernetes resources require separate deployment and configuration.</p>
+        </section>
+      </div>
     </div>
-
+    <footer><span>SentinelOps · Fraud model workspace</span><span>Model predictions are generated by the active local model.</span></footer>
   </main>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
+    const byId = (id) => document.getElementById(id);
 
-    // Fetch initial model metadata on page load
     async function loadMetrics() {
       try {
-        const res = await fetch('/metrics');
-        const data = await res.json();
+        const response = await fetch('/metrics');
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Could not load model metrics.');
+
         if (data.metrics) {
-          document.getElementById('nav-model-badge').innerText = `Model: ${data.model_version}`;
-          document.getElementById('metric-accuracy').innerText = (data.metrics.accuracy * 100).toFixed(1) + '%';
-          document.getElementById('metric-f1').innerText = `${(data.metrics.f1_score * 100).toFixed(1)}% / ${(data.metrics.roc_auc * 100).toFixed(1)}%`;
+          byId('nav-model-badge').textContent = `Model ${data.model_version}`;
+          byId('metric-version').textContent = data.model_version || '—';
+          byId('metric-accuracy').textContent = `${(data.metrics.accuracy * 100).toFixed(1)}%`;
+          byId('metric-f1').textContent = `${(data.metrics.f1_score * 100).toFixed(1)}%`;
+          byId('metric-auc').textContent = `${(data.metrics.roc_auc * 100).toFixed(1)}%`;
+          byId('model-state').textContent = 'Loaded';
+        } else {
+          byId('nav-model-badge').textContent = 'Model unavailable';
+          byId('metric-version').textContent = 'No model';
+          byId('model-state').textContent = 'Not loaded';
         }
-      } catch (err) {
-        console.warn("Could not load metrics:", err);
+      } catch (error) {
+        byId('nav-model-badge').textContent = 'API unavailable';
+        byId('model-state').textContent = 'Unavailable';
+        byId('prediction-message').textContent = error.message;
       }
     }
-    loadMetrics();
 
-    // Preset handler
+    async function loadHealth() {
+      try {
+        const response = await fetch('/health');
+        const data = await response.json();
+        byId('api-state').textContent = response.ok ? 'Online' : 'Unavailable';
+        if (!data.model_loaded) byId('model-state').textContent = 'Not loaded';
+      } catch {
+        byId('api-state').textContent = 'Unavailable';
+      }
+    }
+
+    function setTransaction(values) {
+      byId('tx_amount').value = values.amount;
+      byId('tx_freq').value = values.frequency;
+      byId('tx_location').value = values.location;
+      byId('val_loc').value = Number(values.location).toFixed(2);
+      byId('val_loc').textContent = Number(values.location).toFixed(2);
+      byId('tx_device').value = values.device;
+      byId('val_dev').value = Number(values.device).toFixed(2);
+      byId('val_dev').textContent = Number(values.device).toFixed(2);
+      byId('tx_hour').value = values.hour;
+      byId('tx_failed').value = values.failed;
+    }
+
     function applyPreset(type) {
-      if (type === 'normal') {
-        document.getElementById('tx_amount').value = 35.50;
-        document.getElementById('tx_freq').value = 2;
-        document.getElementById('tx_location').value = 0.12;
-        document.getElementById('val_loc').innerText = "0.12";
-        document.getElementById('tx_device').value = 0.95;
-        document.getElementById('val_dev').innerText = "0.95";
-        document.getElementById('tx_hour').value = 14;
-        document.getElementById('tx_failed').value = 0;
-      } else if (type === 'suspicious') {
-        document.getElementById('tx_amount').value = 2890.00;
-        document.getElementById('tx_freq').value = 14;
-        document.getElementById('tx_location').value = 0.98;
-        document.getElementById('val_loc').innerText = "0.98";
-        document.getElementById('tx_device').value = 0.05;
-        document.getElementById('val_dev').innerText = "0.05";
-        document.getElementById('tx_hour').value = 3;
-        document.getElementById('tx_failed').value = 4;
-      } else if (type === 'medium') {
-        document.getElementById('tx_amount').value = 420.00;
-        document.getElementById('tx_freq').value = 8;
-        document.getElementById('tx_location').value = 0.55;
-        document.getElementById('val_loc').innerText = "0.55";
-        document.getElementById('tx_device').value = 0.50;
-        document.getElementById('val_dev').innerText = "0.50";
-        document.getElementById('tx_hour').value = 21;
-        document.getElementById('tx_failed').value = 1;
-      }
+      const presets = {
+        normal: { amount: 35.50, frequency: 2, location: 0.12, device: 0.95, hour: 14, failed: 0 },
+        suspicious: { amount: 2890, frequency: 14, location: 0.98, device: 0.05, hour: 3, failed: 4 },
+        medium: { amount: 420, frequency: 8, location: 0.55, device: 0.50, hour: 21, failed: 1 },
+      };
+      setTransaction(presets[type]);
     }
 
-    // Form Submit (POST /predict)
-    document.getElementById('fraud-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('btn-submit');
-      btn.disabled = true;
-      btn.innerHTML = `<span class="animate-spin inline-block mr-2">&#9696;</span> Scoring with ML Model...`;
+    byId('tx_location').addEventListener('input', (event) => {
+      byId('val_loc').value = Number(event.target.value).toFixed(2);
+      byId('val_loc').textContent = Number(event.target.value).toFixed(2);
+    });
+    byId('tx_device').addEventListener('input', (event) => {
+      byId('val_dev').value = Number(event.target.value).toFixed(2);
+      byId('val_dev').textContent = Number(event.target.value).toFixed(2);
+    });
+
+    byId('fraud-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = byId('btn-submit');
+      const buttonText = button.querySelector('span:last-child');
+      const message = byId('prediction-message');
+      button.disabled = true;
+      buttonText.textContent = 'Scoring transaction…';
+      message.textContent = '';
 
       const payload = {
-        transaction_amount: parseFloat(document.getElementById('tx_amount').value),
-        transaction_frequency: parseInt(document.getElementById('tx_freq').value),
-        location_risk_score: parseFloat(document.getElementById('tx_location').value),
-        device_trust_score: parseFloat(document.getElementById('tx_device').value),
-        time_of_day: parseInt(document.getElementById('tx_hour').value),
-        failed_attempts: parseInt(document.getElementById('tx_failed').value)
+        transaction_amount: Number(byId('tx_amount').value),
+        transaction_frequency: Number.parseInt(byId('tx_freq').value, 10),
+        location_risk_score: Number(byId('tx_location').value),
+        device_trust_score: Number(byId('tx_device').value),
+        time_of_day: Number.parseInt(byId('tx_hour').value, 10),
+        failed_attempts: Number.parseInt(byId('tx_failed').value, 10),
       };
 
       try {
         const response = await fetch('/predict', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         });
-
         const data = await response.json();
-        const resultBox = document.getElementById('result-box');
-        const badgeText = document.getElementById('res-badge-text');
-        const badgeIcon = document.getElementById('res-badge-icon');
-        const actionTag = document.getElementById('res-action');
-        const probText = document.getElementById('res-prob');
-        const probBar = document.getElementById('res-bar');
-        const versionText = document.getElementById('res-version');
+        if (!response.ok) throw new Error(data.detail || 'The model could not score this transaction.');
 
-        resultBox.classList.remove('hidden');
-        versionText.innerText = data.model_version;
-        probText.innerText = `${(data.fraud_probability * 100).toFixed(2)}%`;
-        probBar.style.width = `${(data.fraud_probability * 100)}%`;
-
-        if (data.risk_level === 'HIGH') {
-          resultBox.className = "border rounded-xl p-5 bg-rose-500/10 border-rose-500/40 text-rose-300";
-          badgeText.innerText = "FRAUD DETECTED";
-          badgeIcon.innerHTML = `<i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400"></i>`;
-          actionTag.className = "text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-rose-500 text-white";
-          actionTag.innerText = data.action_recommended;
-          probBar.className = "h-3 rounded-full bg-rose-500";
-        } else if (data.risk_level === 'MEDIUM') {
-          resultBox.className = "border rounded-xl p-5 bg-amber-500/10 border-amber-500/40 text-amber-300";
-          badgeText.innerText = "SUSPICIOUS ACTIVITY";
-          badgeIcon.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>`;
-          actionTag.className = "text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-amber-500 text-white";
-          actionTag.innerText = data.action_recommended;
-          probBar.className = "h-3 rounded-full bg-amber-500";
-        } else {
-          resultBox.className = "border rounded-xl p-5 bg-emerald-500/10 border-emerald-500/40 text-emerald-300";
-          badgeText.innerText = "TRANSACTION APPROVED";
-          badgeIcon.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>`;
-          actionTag.className = "text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-emerald-500 text-white";
-          actionTag.innerText = data.action_recommended;
-          probBar.className = "h-3 rounded-full bg-emerald-500";
-        }
-
-        lucide.createIcons();
-      } catch (err) {
-        alert("Error communicating with serving API: " + err);
+        const result = byId('result-box');
+        result.hidden = false;
+        result.dataset.risk = data.risk_level.toLowerCase();
+        byId('res-badge-text').textContent = data.risk_level === 'HIGH' ? 'High risk detected' : data.risk_level === 'MEDIUM' ? 'Review recommended' : 'Low risk transaction';
+        byId('res-action').textContent = data.action_recommended.replaceAll('_', ' ');
+        byId('res-version').textContent = data.model_version;
+        byId('res-prob').textContent = `${(data.fraud_probability * 100).toFixed(2)}%`;
+        byId('res-bar').style.inlineSize = `${data.fraud_probability * 100}%`;
+        result.querySelector('[role="meter"]').setAttribute('aria-valuenow', String(Math.round(data.fraud_probability * 100)));
+      } catch (error) {
+        message.textContent = error.message;
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="zap" class="w-4 h-4"></i><span>Evaluate Transaction with ML Model</span>`;
-        lucide.createIcons();
+        button.disabled = false;
+        buttonText.textContent = 'Score transaction';
       }
     });
 
-    // Retraining Simulation Function
     async function triggerRetrain() {
-      const btn = document.getElementById('btn-retrain');
-      const consoleBox = document.getElementById('retrain-console');
-      const logOutput = document.getElementById('log-output');
-      const retrainStatus = document.getElementById('retrain-status');
+      const button = byId('btn-retrain');
+      const consoleBox = byId('retrain-console');
+      const logOutput = byId('log-output');
+      const retrainStatus = byId('retrain-status');
+      button.disabled = true;
+      consoleBox.hidden = false;
+      logOutput.replaceChildren();
+      retrainStatus.textContent = 'In progress';
 
-      btn.disabled = true;
-      consoleBox.classList.remove('hidden');
-      logOutput.innerHTML = '';
-      retrainStatus.innerText = "In Progress...";
-      retrainStatus.className = "text-amber-400 font-bold";
-
-      const log = (msg, color="text-slate-300") => {
+      const log = (message) => {
         const line = document.createElement('div');
-        line.className = color;
-        line.innerHTML = `&gt; ${msg}`;
+        line.className = 'log-line';
+        const mark = document.createElement('span');
+        mark.className = 'log-mark';
+        mark.textContent = '›';
+        const text = document.createElement('span');
+        text.textContent = message;
+        line.append(mark, text);
         logOutput.appendChild(line);
-        consoleBox.scrollTop = consoleBox.scrollHeight;
+        logOutput.scrollTop = logOutput.scrollHeight;
       };
 
-      log("1. Uploading transactions_v2.csv (3,500 records with drift) to AWS S3...", "text-indigo-400");
-      await new Promise(r => setTimeout(r, 900));
-
-      log("2. S3 ObjectCreated event captured by AWS Lambda Trigger function.", "text-purple-400");
-      await new Promise(r => setTimeout(r, 800));
-
-      log("3. Lambda verified schema (7 columns valid). Dispatching Kubernetes Job...", "text-slate-300");
-      await new Promise(r => setTimeout(r, 1000));
-
-      log("4. Pod 'mlops-training-job' running on EC2 node (Random Forest with StandardScaler)...", "text-amber-300");
-      
-      // Call backend to trigger actual retraining
+      log('Generating a synthetic dataset with distribution drift…');
+      log('Training and evaluating a new Random Forest model…');
       try {
-        const res = await fetch('/api/retrain', { method: 'POST' });
-        const data = await res.json();
-
-        log(`5. Training finished! New Accuracy: ${(data.accuracy * 100).toFixed(2)}%, F1: ${(data.f1_score * 100).toFixed(2)}%`, "text-emerald-400");
-        await new Promise(r => setTimeout(r, 700));
-
-        log("6. Evaluator Lambda compared accuracy against SSM baseline: QUALITY GATE PASSED!", "text-emerald-400");
-        await new Promise(r => setTimeout(r, 700));
-
-        log(`7. Zero-Downtime Rolling Update performed on Kubernetes serving pods (Model: ${data.version}).`, "text-indigo-300");
-        log("8. AWS SNS Email Alert sent to MLOps engineering subscribers.", "text-pink-400");
-
-        retrainStatus.innerText = "Completed & Deployed";
-        retrainStatus.className = "text-emerald-400 font-bold";
-        loadMetrics();
-      } catch (e) {
-        log("Error executing training pipeline: " + e, "text-rose-400");
-        retrainStatus.innerText = "Failed";
-        retrainStatus.className = "text-rose-400 font-bold";
+        const response = await fetch('/api/retrain', { method: 'POST' });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Retraining did not complete.');
+        log(`Training complete · accuracy ${(data.accuracy * 100).toFixed(2)}% · F1 ${(data.f1_score * 100).toFixed(2)}%.`);
+        log(`Local serving cache reloaded with model ${data.version}.`);
+        retrainStatus.textContent = 'Complete';
+        byId('prediction-message').textContent = '';
+        await Promise.all([loadMetrics(), loadHealth()]);
+      } catch (error) {
+        log(error.message);
+        retrainStatus.textContent = 'Failed';
       } finally {
-        btn.disabled = false;
+        button.disabled = false;
       }
     }
+
+    loadMetrics();
+    loadHealth();
   </script>
 </body>
 </html>
-
