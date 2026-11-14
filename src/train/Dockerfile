@@ -23,3 +23,4 @@ COPY train.py .
 # Entrypoint to run training script
 ENTRYPOINT ["python", "train.py"]
 CMD ["--data-path", "data/raw/transactions_v1.csv", "--version", "v1"]
+

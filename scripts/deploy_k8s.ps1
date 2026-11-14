@@ -34,3 +34,4 @@ kubectl rollout status deployment/mlops-serving-api -n $Namespace
 Write-Host "`n[SUCCESS] Kubernetes Deployment Complete!" -ForegroundColor Green
 Write-Host "Run the following to inspect resources:"
 Write-Host "  kubectl get pods,svc -n $Namespace -o wide"
+

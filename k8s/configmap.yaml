@@ -8,3 +8,4 @@ data:
   S3_BUCKET: "my-mlops-pipeline-bucket"
   MODEL_S3_KEY: "models/model_latest.joblib"
   METRICS_S3_KEY: "metrics/metrics.json"
+

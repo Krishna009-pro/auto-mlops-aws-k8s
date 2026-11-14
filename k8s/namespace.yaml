@@ -5,3 +5,4 @@ metadata:
   labels:
     environment: production
     app: fraud-detection-mlops
+

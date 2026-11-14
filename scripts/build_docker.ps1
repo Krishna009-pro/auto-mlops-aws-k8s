@@ -29,3 +29,4 @@ Write-Host "To push to Docker Hub, run:" -ForegroundColor Cyan
 Write-Host "  docker login"
 Write-Host "  docker push $DockerUser/mlops-trainer:$Tag"
 Write-Host "  docker push $DockerUser/mlops-serving:$Tag"
+

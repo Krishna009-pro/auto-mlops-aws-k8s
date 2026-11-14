@@ -95,3 +95,4 @@ jobs:
             python -c "import yaml; yaml.safe_load(open('$file'))"
           done
           echo "All Kubernetes manifests are valid YAML!"
+

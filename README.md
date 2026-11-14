@@ -216,3 +216,4 @@ POST /predict
 
 4. **What prevents a degraded model from reaching production?**
    - *Answer:* The Evaluator Lambda acts as an automated Quality Gate. It verifies `new_accuracy >= threshold` (stored in AWS SSM Parameter Store). If the model regresses, deployment is blocked and an alert is sent via AWS SNS.
+

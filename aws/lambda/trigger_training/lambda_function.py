@@ -96,3 +96,4 @@ def notify_sns(subject: str, message: str):
         print(f"[SNS] Published message to {SNS_TOPIC_ARN}")
     except Exception as e:
         print(f"[SNS ERROR] Failed to publish alert: {e}")
+

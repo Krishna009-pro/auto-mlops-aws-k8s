@@ -84,3 +84,4 @@ def test_api_serving(tmp_path):
     assert "is_fraud" in data
     assert "fraud_probability" in data
     assert data["risk_level"] in ["LOW", "MEDIUM", "HIGH"]
+
