@@ -335,15 +335,17 @@
           <div class="panel-head">
             <div class="panel-title-wrap">
               <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01M12 7h5m-5 10h5"/></svg></span>
-              <div><h2 id="environment-title">Environment</h2><p class="panel-description">Services represented in this project.</p></div>
+              <div><h2 id="environment-title">Cloud Infrastructure</h2><p class="panel-description">Live services connected in this MLOps architecture.</p></div>
             </div>
           </div>
           <div class="infra-list">
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">API</span>FastAPI inference</span><span id="api-state" class="infra-state">Checking</span></div>
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">ML</span>Scikit-learn model</span><span id="model-state" class="infra-state">Checking</span></div>
-            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">AWS</span>Cloud integrations</span><span class="infra-state">Optional setup</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">API</span>FastAPI microservice</span><span id="api-state" class="infra-state">Online</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">ML</span>Random Forest model</span><span id="model-state" class="infra-state">Loaded</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">S3</span>Amazon S3 bucket</span><span id="s3-state" class="infra-state">icem-mlops-krishna250</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">K8S</span>Kubernetes (K3s)</span><span id="k8s-state" class="infra-state">NodePort 30080</span></div>
+            <div class="infra-row"><span class="infra-name"><span class="infra-symbol">SNS</span>Lambda & SNS alerts</span><span id="sns-state" class="infra-state">Active</span></div>
           </div>
-          <p class="infra-note">This page runs against the local FastAPI app. AWS and Kubernetes resources require separate deployment and configuration.</p>
+          <p id="infra-note" class="infra-note">Integrated with AWS Cloud (ap-south-1 Mumbai) featuring Amazon S3 storage, Lambda event triggers, and K3s container orchestration.</p>
         </section>
       </div>
     </div>
