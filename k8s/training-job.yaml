@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mlops-training-job
+  namespace: mlops
+  labels:
+    app: fraud-detector-trainer
+spec:
+  # Ephemeral job: Runs once to completion, automatically cleaned up
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: fraud-detector-trainer
+    spec:
+      serviceAccountName: mlops-service-account
+      restartPolicy: OnFailure
+      containers:
+        - name: trainer
+          image: yourdockerhub/mlops-trainer:latest
+          imagePullPolicy: Always
+          args:
+            - "--data-path"
+            - "datasets/transactions_latest.csv"
+            - "--version"
+            - "v2-automated"
+            - "--s3-bucket"
+            - "my-mlops-pipeline-bucket"
+          envFrom:
+            - configMapRef:
+                name: mlops-config
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"

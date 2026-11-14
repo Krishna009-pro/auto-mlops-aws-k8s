@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Artifacts & Local models
+artifacts/
+data/raw/*.csv
+data/processed/
+*.joblib
+*.pkl
+
+# Logs & Environment variables
+*.log
+.env
+.env.local
+
+# Kubernetes & Secrets
+*.kubeconfig
+secrets.yaml
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS Specific
+.DS_Store
+Thumbs.db
