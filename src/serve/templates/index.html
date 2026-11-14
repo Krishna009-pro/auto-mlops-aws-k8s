@@ -635,7 +635,17 @@
           log(`KS Drift Test p-value = ${data.drift_p_value} · Concept Drift ${data.drift_detected ? 'CONFIRMED' : 'Not Detected'}.`);
         }
         log(`Retrained Random Forest · accuracy ${(data.accuracy * 100).toFixed(2)}% · F1 ${(data.f1_score * 100).toFixed(2)}%.`);
-        log(`Hot-swapped new model ${data.version} into serving cache.`);
+        if (data.dataset_saved) {
+          log(`Saved dataset: artifacts/datasets/${data.dataset_saved}`);
+        }
+        if (data.model_saved) {
+          log(`Saved model artifact: artifacts/models/${data.model_saved}`);
+          log(`Updated latest pointer: artifacts/models/model_latest.joblib`);
+        }
+        if (data.s3_synced) {
+          log(`Synced artifacts to Amazon S3: s3://icem-mlops-krishna250/ (models/, datasets/, metrics/)`);
+        }
+        log(`Hot-swapped new model ${data.version} into live serving cache.`);
         retrainStatus.textContent = 'Complete';
         byId('prediction-message').textContent = '';
         await Promise.all([loadMetrics(), loadHealth()]);

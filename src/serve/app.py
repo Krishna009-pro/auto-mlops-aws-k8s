@@ -278,6 +278,15 @@ def api_retrain_model():
         ks_stat, ks_pval = ks_2samp(df_base["location_risk_score"], df_new["location_risk_score"])
         drift_detected = bool(ks_pval < 0.05)
 
+        version = f"v2.{int(pd.Timestamp.now().timestamp()) % 1000}"
+
+        # 2. Physically save new dataset artifact to datasets/
+        os.makedirs("artifacts/datasets", exist_ok=True)
+        csv_filename = f"transactions_drifted_{version}.csv"
+        csv_path = os.path.join("artifacts/datasets", csv_filename)
+        df_new.to_csv(csv_path, index=False)
+        df_new.to_csv("artifacts/datasets/transactions_latest.csv", index=False)
+
         features = ["transaction_amount", "transaction_frequency", "location_risk_score", "device_trust_score", "time_of_day", "failed_attempts"]
         X = df_new[features]
         y = df_new["is_fraud"]
@@ -299,7 +308,21 @@ def api_retrain_model():
         f1 = float(f1_score(y_test, y_pred, zero_division=0))
         roc_auc = float(roc_auc_score(y_test, y_prob))
 
-        version = f"v2.{int(pd.Timestamp.now().timestamp()) % 1000}"
+        # 3. Physically save new model artifact to models/
+        import joblib
+        os.makedirs("artifacts/models", exist_ok=True)
+        model_filename = f"model_{version}.joblib"
+        model_path = os.path.join("artifacts/models", model_filename)
+        latest_model_path = "artifacts/models/model_latest.joblib"
+        joblib.dump(pipeline, model_path)
+        joblib.dump(pipeline, latest_model_path)
+
+        # 4. Physically save new metrics artifact to metrics/
+        os.makedirs("artifacts/metrics", exist_ok=True)
+        metrics_filename = f"metrics_{version}.json"
+        metrics_path = os.path.join("artifacts/metrics", metrics_filename)
+        latest_metrics_path = "artifacts/metrics/metrics.json"
+
         metrics = {
             "version": version,
             "accuracy": round(acc, 4),
@@ -309,7 +332,34 @@ def api_retrain_model():
             "roc_auc": round(roc_auc, 4),
             "drift_detected": drift_detected,
             "drift_p_value": float(round(ks_pval, 6)),
+            "dataset_saved": csv_filename,
+            "model_saved": model_filename,
         }
+
+        with open(metrics_path, "w") as mf:
+            json.dump(metrics, mf, indent=2)
+        with open(latest_metrics_path, "w") as mf:
+            json.dump(metrics, mf, indent=2)
+
+        # 5. Synchronize artifacts to Amazon S3 (models/, datasets/, metrics/)
+        s3_synced = False
+        if S3_BUCKET:
+            try:
+                import boto3
+                s3_client = boto3.client("s3")
+                # Upload dataset
+                s3_client.upload_file(csv_path, S3_BUCKET, f"datasets/{csv_filename}")
+                # Upload model
+                s3_client.upload_file(model_path, S3_BUCKET, f"models/{model_filename}")
+                s3_client.upload_file(latest_model_path, S3_BUCKET, "models/model_latest.joblib")
+                # Upload metrics
+                s3_client.upload_file(latest_metrics_path, S3_BUCKET, "metrics/metrics.json")
+                s3_synced = True
+                logger.info(f"Artifacts successfully synchronized to s3://{S3_BUCKET}/")
+            except Exception as s3_err:
+                logger.warning(f"Could not synchronize artifacts to S3: {s3_err}")
+
+        metrics["s3_synced"] = s3_synced
 
         # Hot reload in memory
         model_cache["model"] = pipeline
