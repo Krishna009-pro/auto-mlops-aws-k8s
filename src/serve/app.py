@@ -205,6 +205,44 @@ class PredictionResponse(BaseModel):
     risk_level: str
     model_version: str
     action_recommended: str
+    risk_factors: list[str] = Field(default_factory=list)
+
+
+def compute_risk_factors(req: TransactionRequest, prob: float) -> list[str]:
+    """Explainable AI (XAI): Extracts dominant risk drivers for the decision."""
+    factors = []
+    if req.transaction_amount >= 1500:
+        factors.append(f"High transaction value (${req.transaction_amount:,.2f})")
+    elif req.transaction_amount >= 500:
+        factors.append(f"Above-average amount (${req.transaction_amount:,.2f})")
+
+    if req.location_risk_score >= 0.70:
+        factors.append(f"Severe geolocation anomaly ({req.location_risk_score:.2f})")
+    elif req.location_risk_score >= 0.40:
+        factors.append(f"Elevated location risk score ({req.location_risk_score:.2f})")
+
+    if req.device_trust_score <= 0.30:
+        factors.append(f"Untrusted / unverified device ({req.device_trust_score:.2f})")
+    elif req.device_trust_score <= 0.60:
+        factors.append(f"Unrecognized browser profile ({req.device_trust_score:.2f})")
+
+    if req.failed_attempts >= 3:
+        factors.append(f"Multiple failed PIN/logins ({req.failed_attempts} attempts)")
+    elif req.failed_attempts >= 1:
+        factors.append(f"Recent failed authentication attempt ({req.failed_attempts})")
+
+    if req.time_of_day in [0, 1, 2, 3, 4]:
+        factors.append(f"Off-hours overnight activity ({req.time_of_day:02d}:00 hrs)")
+
+    if req.transaction_frequency >= 10:
+        factors.append(f"High velocity burst ({req.transaction_frequency} transactions/day)")
+
+    if not factors:
+        if prob < 0.40:
+            factors.append("All behavioral indicators match normal customer baseline")
+        else:
+            factors.append("Multi-factor interaction threshold exceeded")
+    return factors
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -228,9 +266,15 @@ def api_retrain_model():
         from sklearn.ensemble import RandomForestClassifier
         from sklearn.pipeline import Pipeline
         from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+        from scipy.stats import ks_2samp
 
-        # 1. Generate new drift dataset
+        # 1. Generate new drift dataset and perform statistical KS Drift Test
         df_new = generate_synthetic_fraud_data(num_samples=3500, fraud_rate=0.10, drift_factor=0.3, random_seed=99)
+        df_base = generate_synthetic_fraud_data(num_samples=2000, drift_factor=0.0, random_seed=42)
+
+        ks_stat, ks_pval = ks_2samp(df_base["location_risk_score"], df_new["location_risk_score"])
+        drift_detected = bool(ks_pval < 0.05)
+
         features = ["transaction_amount", "transaction_frequency", "location_risk_score", "device_trust_score", "time_of_day", "failed_attempts"]
         X = df_new[features]
         y = df_new["is_fraud"]
@@ -260,6 +304,8 @@ def api_retrain_model():
             "recall": round(rec, 4),
             "f1_score": round(f1, 4),
             "roc_auc": round(roc_auc, 4),
+            "drift_detected": drift_detected,
+            "drift_p_value": float(round(ks_pval, 6)),
         }
 
         # Hot reload in memory
@@ -333,7 +379,10 @@ def predict(request: TransactionRequest):
             risk = "LOW"
             action = "APPROVE"
 
-        logger.info(f"Prediction: Fraud={prediction}, Prob={probability:.4f}, Risk={risk}")
+        # Explainable AI: Compute key risk drivers
+        risk_factors = compute_risk_factors(request, probability)
+
+        logger.info(f"Prediction: Fraud={prediction}, Prob={probability:.4f}, Risk={risk}, Factors={len(risk_factors)}")
 
         return PredictionResponse(
             is_fraud=prediction,
@@ -341,6 +390,7 @@ def predict(request: TransactionRequest):
             risk_level=risk,
             model_version=model_cache["version"],
             action_recommended=action,
+            risk_factors=risk_factors,
         )
     except Exception as e:
         logger.error(f"Inference error: {e}")
