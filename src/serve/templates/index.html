@@ -243,9 +243,9 @@
         <h1 id="page-title">Good morning, operator.</h1>
         <p class="intro-copy">Review model performance, score a transaction, or run a local retraining cycle from one place.</p>
       </div>
-      <span class="local-tag">
+      <span id="env-badge" class="local-tag">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="12" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
-        Local demo environment
+        <span id="env-text">Detecting environment…</span>
       </span>
     </section>
 
@@ -405,6 +405,21 @@
         byId('nav-model-badge').textContent = 'API unavailable';
         byId('model-state').textContent = 'Unavailable';
         byId('prediction-message').textContent = error.message;
+      }
+    }
+
+    function updateEnvironmentBadge() {
+      const host = window.location.hostname;
+      const isLocal = host === 'localhost' || host === '127.0.0.1';
+      const badge = byId('env-badge');
+      const text = byId('env-text');
+      if (isLocal) {
+        text.textContent = 'Local demo environment';
+      } else {
+        text.textContent = 'AWS Cloud · Kubernetes (K3s)';
+        badge.style.background = '#edf6f2';
+        badge.style.borderColor = '#c3ded1';
+        badge.style.color = 'var(--green-dark)';
       }
     }
 
@@ -630,6 +645,7 @@
       }
     }
 
+    updateEnvironmentBadge();
     loadMetrics();
     loadHealth();
     loadAuditLogs();
