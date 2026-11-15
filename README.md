@@ -10,28 +10,21 @@ An enterprise-grade, event-driven **MLOps Automation Platform** designed for con
 
 ---
 
-## 📌 Architecture & Automated Workflow
+## 📌 Architecture & Visual Diagrams
 
-```
-[Data Engineer / Ingest]
-        │
-        ▼ (New CSV dataset)
-    [AWS S3] (datasets/transactions_v2.csv)
-        │
-        ▼ (S3 Event / EventBridge)
-   [AWS Lambda 1] ──(Validates Schema & triggers)──► [K8s Training Job (on EC2)]
-  (Ingest Trigger)                                           │
-                                                             ▼ (Pulls Python Trainer
-                                                                from Docker Hub)
-                                                        [Trains Model]
-                                                             │
-                                                             ▼ (Uploads model.joblib & metrics.json)
-                                                         [AWS S3]
-                                                             │
-                                                             ▼ (S3 Event)
-   [AWS SNS Alerts] ◄── [AWS Lambda 2] ────────────────► [Kubernetes Cluster]
-  (Email Notification)   (Evaluator + SSM Parameter)   (Rolling Update on Serving Pods)
-```
+### 1. System Architecture
+![System Architecture](docs/diagrams/system_architecture.png)
+
+### 2. End-to-End MLOps Sequence Diagram
+![Sequence Diagram](docs/diagrams/sequence_diagram.png)
+
+### 3. Continuous Training (CT) Pipeline Workflow
+![Continuous Training Flow](docs/diagrams/mlops_pipeline_flow.png)
+
+### 4. Kubernetes (K3s) Cluster & Network Topology
+![K8s Topology](docs/diagrams/k8s_deployment_topology.png)
+
+> Vector SVG versions and high-res source files are located in [`docs/diagrams/`](docs/diagrams/).
 
 ---
 
