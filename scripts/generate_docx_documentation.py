@@ -320,8 +320,8 @@ def build_document():
     add_p(doc, "SentinelOps separates concerns into five decoupled, highly available tiers: Client Tier, Compute & Orchestration, Cloud Storage Registry, Serverless Automation, and CI/CD.")
 
     add_heading_2(doc, "2.1 Cloud-Native System Architecture Diagram")
-    # Using the clean, high-contrast, light-theme architecture diagram
-    add_image_with_caption(doc, "system_architecture_clean.png", "SentinelOps 5-Tier Cloud-Native Architecture on AWS and Kubernetes (Clean High-Contrast Edition)")
+    # Using the exact Mermaid dark flowchart diagram
+    add_image_with_caption(doc, "system_architecture_mermaid_exact.png", "SentinelOps 5-Tier Cloud-Native Architecture (Mermaid Edition)")
 
     add_p(doc, "The architecture diagram above outlines the physical and logical layout:")
     add_bullet(doc, "1. Client Tier:", "Browser-based SentinelOps dashboard with live fraud prediction forms, dynamic Explainable AI risk factor pills, and persistent audit log tables backed by browser localStorage.")
@@ -333,7 +333,8 @@ def build_document():
     doc.add_page_break()
 
     add_heading_2(doc, "2.2 End-to-End MLOps Sequence Diagram")
-    add_image_with_caption(doc, "sequence_diagram.png", "Chronological Message Flow Across All System Actors and Lifelines")
+    # Using the exact Mermaid sequence diagram from user selection
+    add_image_with_caption(doc, "sequence_diagram_mermaid_clean.png", "Chronological Message Flow Across All System Actors and Lifelines (Mermaid Edition)")
 
     add_p(doc, "The sequence diagram traces a 15-step event chain across 8 distinct lifelines:")
     

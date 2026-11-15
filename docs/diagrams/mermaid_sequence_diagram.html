@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="k:/Degree/Sem 5/Cloud-Native MLOps/Practicals/mlops-automated-pipeline/docs/diagrams/mermaid.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      background-color: #18181b;
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .mermaid-container {
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 24px;
+      display: inline-block;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#18181b',
+        mainBkg: '#27272a',
+        textColor: '#f4f4f5',
+        lineColor: '#a1a1aa',
+        actorBkg: '#27272a',
+        actorBorder: '#52525b',
+        actorTextColor: '#f4f4f5',
+        actorLineColor: '#71717a',
+        signalColor: '#e4e4e7',
+        signalTextColor: '#f4f4f5',
+        labelBoxBkgColor: '#27272a',
+        labelBoxBorderColor: '#52525b',
+        labelTextColor: '#f4f4f5',
+        loopTextColor: '#f4f4f5',
+        noteBkgColor: '#27272a',
+        noteBorderColor: '#52525b',
+        noteTextColor: '#f4f4f5'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="mermaid-container">
+    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as Client / Web UI
+    participant Srv as FastAPI Serving (K3s Pod)
+    participant ML as RandomForest Model (XAI)
+    participant Drift as Drift Monitor (KS-Test)
+    participant S3 as AWS S3 Bucket
+    participant Lambda as AWS Lambda (MLOpsProcessor)
+    participant SNS as AWS SNS (mlops-alerts)
+    participant K8s as K8s Training Job
+
+    Note over User,Srv: 1. Real-Time Online Inference Phase
+    User->>Srv: POST /predict (Amount, Location, Device)
+    Srv->>ML: Extract features & evaluate weights
+    ML-->>Srv: Return Fraud Prob (88%) + Explainable Risk Factors
+    Srv-->>User: Render Decision, Risk Factors & Live Audit Row
+    Srv->>Drift: Append transaction to in-memory sliding buffer
+
+    Note over Drift,S3: 2. Continuous Monitoring & Drift Trigger
+    Drift->>Drift: Run Kolmogorov-Smirnov Test (p-value < 0.05)
+    Drift->>S3: Export drifted dataset to s3://icem-mlops-krishna250/datasets/
+
+    Note over S3,K8s: 3. Serverless Event-Driven Orchestration
+    S3->>Lambda: Trigger s3:ObjectCreated:Put Event
+    Lambda->>Lambda: Validate schema, data types & row count (242ms)
+    Lambda->>K8s: Launch batch training job (fraud-trainer)
+    K8s->>K8s: Train RandomForest with balanced weights
+    K8s->>S3: Upload model_v2.joblib & metrics.json to models/
+    S3->>Lambda: Event: Evaluation metrics ready
+
+    Note over Lambda,SNS: 4. Automated Quality Gate & Deployment
+    Lambda->>Lambda: Evaluate Gate: Accuracy >= 0.85 & F1 >= 0.80
+    Lambda->>SNS: Publish deployment verdict & metric report
+    SNS-->>User: Dispatch Email / SMS alert to DevOps Engineer
+    Lambda->>Srv: Zero-downtime rolling update (kubectl rollout restart)
+    Srv->>Srv: Hot-swap model in memory with zero dropped requests
+    </pre>
+  </div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="/mermaid.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background-color: #18181b;
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    .mermaid-box {
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 14px;
+      padding: 30px;
+      display: inline-block;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#18181b',
+        mainBkg: '#27272a',
+        textColor: '#f4f4f5',
+        lineColor: '#a1a1aa'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="mermaid-box">
+    <pre class="mermaid">
+flowchart TD
+    subgraph ClientTier["1. CLIENT TIER (User & Interface)"]
+        UI["Web UI Dashboard (SentinelOps)"]
+        XAI["Explainable AI Panel (Risk Indicators)"]
+        Audit["Live Transaction Audit Stream"]
+    end
+
+    subgraph ComputeTier["2. COMPUTE TIER (AWS EC2 + Kubernetes K3s)"]
+        NP["Kubernetes NodePort (30080 -> 8000)"]
+        SVC["K8s Service: fraud-detector-service"]
+        POD_SERV["Serving Pod (FastAPI + RandomForest + KS-Test)"]
+        POD_TRAIN["Training Job Pod (Scikit-Learn Batch Job)"]
+        CFG["ConfigMap & IAM Role: MLOpsEC2Role"]
+    end
+
+    subgraph StorageTier["3. STORAGE & REGISTRY (AWS S3: icem-mlops-krishna250)"]
+        S3_DATA["datasets/ (transactions_v1.csv, transactions_v2.csv)"]
+        S3_MODELS["models/ (model.joblib, model_v2.joblib)"]
+        S3_METRICS["metrics/ (summary_*.json, confusion matrices)"]
+    end
+
+    subgraph ServerlessTier["4. SERVERLESS & MONITORING (AWS Cloud)"]
+        LAMBDA["AWS Lambda: MLOpsProcessor (Validation & Trigger)"]
+        SNS["AWS SNS Topic: mlops-alerts (Email Notifications)"]
+        CW["Amazon CloudWatch (Logs & Execution Metrics)"]
+    end
+
+    subgraph CICDTier["5. CI/CD & REGISTRY TIER"]
+        GH["GitHub: auto-mlops-aws-k8s"]
+        GHA["GitHub Actions (Lint, Test, Docker Build)"]
+        DH["Docker Hub: krishna250/mlops-serving & training"]
+    end
+
+    %% Connections
+    UI -->|HTTP POST :30080| NP
+    NP --> SVC
+    SVC --> POD_SERV
+    POD_SERV -->|Syncs Drifted CSV| S3_DATA
+    S3_DATA -->|s3:ObjectCreated Put Event| LAMBDA
+    LAMBDA -->|Triggers Retraining Job| POD_TRAIN
+    POD_TRAIN -->|Uploads Model & Metrics| S3_MODELS
+    POD_TRAIN -->|Saves Evaluation JSON| S3_METRICS
+    S3_METRICS -->|Triggers Quality Gate| LAMBDA
+    LAMBDA -->|Dispatches Alerts| SNS
+    SNS -->|Sends Email Notification| UserEmail["DevOps / MLOps Engineers"]
+    LAMBDA -->|Rollout Restart| POD_SERV
+    DH -->|Pulls Container Images| POD_SERV
+    DH -->|Pulls Training Container| POD_TRAIN
+    GH --> GHA --> DH
+    </pre>
+  </div>
+</body>
+</html>

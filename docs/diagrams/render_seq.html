@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="/mermaid.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background-color: #18181b;
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    .mermaid-box {
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 14px;
+      padding: 30px;
+      display: inline-block;
+    }
+  </style>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#18181b',
+        mainBkg: '#27272a',
+        textColor: '#f4f4f5',
+        lineColor: '#a1a1aa'
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="mermaid-box">
+    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as Client / Web UI
+    participant Srv as FastAPI Serving (K3s Pod)
+    participant ML as RandomForest Model (XAI)
+    participant Drift as Drift Monitor (KS-Test)
+    participant S3 as AWS S3 Bucket
+    participant Lambda as AWS Lambda (MLOpsProcessor)
+    participant SNS as AWS SNS (mlops-alerts)
+    participant K8s as K8s Training Job
+
+    Note over User,Srv: 1. Real-Time Online Inference Phase
+    User->>Srv: POST /predict (Amount, Location, Device)
+    Srv->>ML: Extract features & evaluate weights
+    ML-->>Srv: Return Fraud Prob (88%) + Explainable Risk Factors
+    Srv-->>User: Render Decision, Risk Factors & Live Audit Row
+    Srv->>Drift: Append transaction to in-memory sliding buffer
+
+    Note over Drift,S3: 2. Continuous Monitoring & Drift Trigger
+    Drift->>Drift: Run Kolmogorov-Smirnov Test (p-value < 0.05)
+    Drift->>S3: Export drifted dataset to s3://icem-mlops-krishna250/datasets/
+
+    Note over S3,K8s: 3. Serverless Event-Driven Orchestration
+    S3->>Lambda: Trigger s3:ObjectCreated:Put Event
+    Lambda->>Lambda: Validate schema, data types & row count (242ms)
+    Lambda->>K8s: Launch batch training job (fraud-trainer)
+    K8s->>K8s: Train RandomForest with balanced weights
+    K8s->>S3: Upload model_v2.joblib & metrics.json to models/
+    S3->>Lambda: Event: Evaluation metrics ready
+
+    Note over Lambda,SNS: 4. Automated Quality Gate & Deployment
+    Lambda->>Lambda: Evaluate Gate: Accuracy >= 0.85 & F1 >= 0.80
+    Lambda->>SNS: Publish deployment verdict & metric report
+    SNS-->>User: Dispatch Email / SMS alert to DevOps Engineer
+    Lambda->>Srv: Zero-downtime rolling update (kubectl rollout restart)
+    Srv->>Srv: Hot-swap model in memory with zero dropped requests
+    </pre>
+  </div>
+</body>
+</html>
