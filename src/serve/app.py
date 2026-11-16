@@ -348,7 +348,7 @@ def api_retrain_model():
                 import boto3
                 s3_client = boto3.client("s3")
                 # Upload dataset
-                s3_client.upload_file(csv_path, S3_BUCKET, f"datasets/{csv_filename}")
+                s3_client.upload_file(csv_path, S3_BUCKET, f"incoming/{csv_filename}")
                 # Upload model
                 s3_client.upload_file(model_path, S3_BUCKET, f"models/{model_filename}")
                 s3_client.upload_file(latest_model_path, S3_BUCKET, "models/model_latest.joblib")

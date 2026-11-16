@@ -99,7 +99,7 @@ def main():
         try:
             import boto3
             s3 = boto3.client("s3")
-            s3_key = f"datasets/{filename}"
+            s3_key = f"incoming/{filename}"
             print(f"[DATA-GEN] Uploading to s3://{args.s3_bucket}/{s3_key}...")
             s3.upload_file(output_path, args.s3_bucket, s3_key)
             print("[DATA-GEN] S3 upload successful!")
