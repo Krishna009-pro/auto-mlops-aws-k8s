@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: Always
           args:
             - "--data-path"
-            - "datasets/transactions_latest.csv"
+            - "incoming/transactions_latest.csv"
             - "--version"
             - "v2-automated"
             - "--s3-bucket"

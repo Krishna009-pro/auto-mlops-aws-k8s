@@ -1,6 +1,6 @@
 """
 AWS Lambda: S3 Event Trigger for Continuous Training (CT).
-Triggered when a new dataset is uploaded to s3://<bucket>/datasets/*.
+Triggered when a new dataset is uploaded to s3://<bucket>/incoming/*.
 Validates the CSV schema and dispatches a Kubernetes training job.
 """
 
@@ -36,7 +36,7 @@ def lambda_handler(event, context):
 
         print(f"[INGEST] Processing new dataset: s3://{bucket}/{key} ({size_bytes} bytes)")
 
-        # Only trigger on CSV files in datasets/
+        # Only trigger on CSV files in incoming/
         if not key.endswith(".csv"):
             print(f"[SKIP] Key {key} is not a CSV file.")
             continue
