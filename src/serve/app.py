@@ -281,11 +281,11 @@ def api_retrain_model():
         version = f"v2.{int(pd.Timestamp.now().timestamp()) % 1000}"
 
         # 2. Physically save new dataset artifact to datasets/
-        os.makedirs("artifacts/datasets", exist_ok=True)
+        os.makedirs("artifacts/incoming", exist_ok=True)
         csv_filename = f"transactions_drifted_{version}.csv"
-        csv_path = os.path.join("artifacts/datasets", csv_filename)
+        csv_path = os.path.join("artifacts/incoming", csv_filename)
         df_new.to_csv(csv_path, index=False)
-        df_new.to_csv("artifacts/datasets/transactions_latest.csv", index=False)
+        df_new.to_csv("artifacts/incoming/transactions_latest.csv", index=False)
 
         features = ["transaction_amount", "transaction_frequency", "location_risk_score", "device_trust_score", "time_of_day", "failed_attempts"]
         X = df_new[features]
