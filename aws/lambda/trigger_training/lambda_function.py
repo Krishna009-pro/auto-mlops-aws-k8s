@@ -13,7 +13,7 @@ import boto3
 s3 = boto3.client("s3")
 sns = boto3.client("sns")
 
-SNS_TOPIC_ARN = os.getenv("SNS_TOPIC_ARN", "")
+SNS_TOPIC_ARN = os.getenv("SNS_TOPIC_ARN", "arn:aws:sns:ap-south-1:843012953573:mlops-alerts")
 K8S_CLUSTER_NAME = os.getenv("K8S_CLUSTER_NAME", "mlops-cluster")
 EXPECTED_COLUMNS = [
     "transaction_amount",

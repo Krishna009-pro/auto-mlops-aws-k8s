@@ -26,7 +26,7 @@ spec:
             - "--version"
             - "v2-automated"
             - "--s3-bucket"
-            - "my-mlops-pipeline-bucket"
+            - "icem-mlops-krishna250"
           envFrom:
             - configMapRef:
                 name: mlops-config

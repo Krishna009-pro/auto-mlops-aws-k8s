@@ -213,7 +213,7 @@ docker push krishna250/mlops-serving:latest
 2. **Type:** `Standard`.
 3. **Name:** `mlops-alerts`.
 4. Click **Create topic**.
-5. Note the **Topic ARN** (e.g. `arn:aws:sns:ap-south-1:123456789012:mlops-alerts`).
+5. Note the **Topic ARN** (e.g. `arn:aws:sns:ap-south-1:843012953573:mlops-alerts`).
 6. Click **Create subscription**:
    - **Protocol:** `Email`
    - **Endpoint:** `your-email@gmail.com`

@@ -537,7 +537,7 @@ def build_document():
         "    print(f'Ingestion trigger: {bucket}/{key}')\n\n"
         "    # Simulated validation & notification\n"
         "    message = f'SentinelOps: Drifted dataset {key} verified. Model accuracy 91.4% exceeds 85% threshold. Rolling update dispatched.'\n"
-        "    # sns.publish(TopicArn='<YOUR_SNS_ARN>', Message=message, Subject='SentinelOps Cloud Alert')\n"
+        "    # sns.publish(TopicArn='arn:aws:sns:ap-south-1:843012953573:mlops-alerts', Message=message, Subject='SentinelOps Cloud Alert')\n"
         "    return {'statusCode': 200, 'body': json.dumps('MLOps event processed successfully')}"
     )
     add_bullet(doc, "Add S3 Trigger:", "Click 'Add trigger' -> Source: S3 -> Bucket: icem-mlops-krishna250 -> Event: All object create events -> Prefix: datasets/.")

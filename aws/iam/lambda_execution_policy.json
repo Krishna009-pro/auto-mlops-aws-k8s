@@ -20,8 +20,8 @@
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::my-mlops-pipeline-bucket",
-        "arn:aws:s3:::my-mlops-pipeline-bucket/*"
+        "arn:aws:s3:::icem-mlops-krishna250",
+        "arn:aws:s3:::icem-mlops-krishna250/*"
       ]
     },
     {
@@ -30,7 +30,7 @@
       "Action": [
         "sns:Publish"
       ],
-      "Resource": "arn:aws:sns:*:*:mlops-pipeline-alerts"
+      "Resource": "arn:aws:sns:ap-south-1:843012953573:mlops-alerts"
     },
     {
       "Sid": "SSMParameterStoreAccess",

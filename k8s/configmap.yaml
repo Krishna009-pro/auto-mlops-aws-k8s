@@ -4,8 +4,9 @@ metadata:
   name: mlops-config
   namespace: mlops
 data:
-  AWS_REGION: "us-east-1"
-  S3_BUCKET: "my-mlops-pipeline-bucket"
+  AWS_REGION: "ap-south-1"
+  S3_BUCKET: "icem-mlops-krishna250"
+  SNS_TOPIC_ARN: "arn:aws:sns:ap-south-1:843012953573:mlops-alerts"
   MODEL_S3_KEY: "models/model_latest.joblib"
   METRICS_S3_KEY: "metrics/metrics.json"
 

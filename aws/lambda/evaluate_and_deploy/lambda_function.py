@@ -14,7 +14,7 @@ s3 = boto3.client("s3")
 sns = boto3.client("sns")
 ssm = boto3.client("ssm")
 
-SNS_TOPIC_ARN = os.getenv("SNS_TOPIC_ARN", "")
+SNS_TOPIC_ARN = os.getenv("SNS_TOPIC_ARN", "arn:aws:sns:ap-south-1:843012953573:mlops-alerts")
 DEFAULT_ACCURACY_THRESHOLD = float(os.getenv("DEFAULT_ACCURACY_THRESHOLD", "0.85"))
 SSM_PARAM_THRESHOLD = "/mlops/prod/accuracy_threshold"
 SSM_PARAM_VERSION = "/mlops/prod/current_model_version"

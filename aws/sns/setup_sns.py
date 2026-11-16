@@ -6,7 +6,7 @@ import argparse
 import boto3
 
 
-def setup_sns(topic_name: str = "mlops-pipeline-alerts", email: str = None, region: str = "us-east-1"):
+def setup_sns(topic_name: str = "mlops-alerts", email: str = None, region: str = "ap-south-1"):
     print(f"[AWS SNS] Initializing SNS client for region: {region}...")
     sns = boto3.client("sns", region_name=region)
 
@@ -32,9 +32,9 @@ def setup_sns(topic_name: str = "mlops-pipeline-alerts", email: str = None, regi
 
 def main():
     parser = argparse.ArgumentParser(description="Setup AWS SNS Topic and Email Subscription")
-    parser.add_argument("--topic", type=str, default="mlops-pipeline-alerts", help="SNS Topic name")
+    parser.add_argument("--topic", type=str, default="mlops-alerts", help="SNS Topic name")
     parser.add_argument("--email", type=str, required=False, help="Email address to receive MLOps alerts")
-    parser.add_argument("--region", type=str, default="us-east-1", help="AWS Region")
+    parser.add_argument("--region", type=str, default="ap-south-1", help="AWS Region")
 
     args = parser.parse_args()
     setup_sns(topic_name=args.topic, email=args.email, region=args.region)
